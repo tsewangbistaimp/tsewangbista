@@ -113,44 +113,44 @@ const galleryImages = [
 
 const cafeImages = [
   {
-    src: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1600&q=82",
-    alt: "Warm wood cafe interior with coffee bar seating"
+    src: "/images/jikmis/cafe/jikmis-cafe-main.jpg",
+    alt: "Warm seating area inside Jikmis Cafe"
   },
   {
-    src: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=900&q=80",
-    alt: "Fresh coffee being served in a cozy cafe"
+    src: "/images/jikmis/cafe/jikmis-cafe-window.jpg",
+    alt: "Window seating and wooden tables at Jikmis Cafe"
   },
   {
-    src: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
-    alt: "Coffee cup on a wooden table"
+    src: "/images/jikmis/cafe/jikmis-cafe-cozy-seating.jpg",
+    alt: "Cozy Jikmis Cafe seating with warm wooden furniture"
   },
   {
-    src: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80",
-    alt: "Fresh latte beside cafe pastries"
+    src: "/images/jikmis/cafe/jikmis-cafe-counter.jpg",
+    alt: "Coffee counter and pastry display at Jikmis Cafe"
   },
   {
-    src: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=900&q=80",
-    alt: "Small cafe table with warm morning light"
+    src: "/images/jikmis/cafe/jikmis-cafe-iced-coffee.jpg",
+    alt: "Iced coffee on a wooden table at Jikmis Cafe"
   },
   {
-    src: "https://images.unsplash.com/photo-1525610553991-2bede1a236e2?auto=format&fit=crop&w=900&q=80",
-    alt: "Cafe seating area with wooden furniture"
+    src: "/images/jikmis/cafe/jikmis-cafe-orange-coffee.jpg",
+    alt: "Cold coffee with orange garnish at Jikmis Cafe"
   },
   {
-    src: "https://images.unsplash.com/photo-1511081692775-05d0f180a065?auto=format&fit=crop&w=900&q=80",
-    alt: "Freshly baked cafe pastry"
+    src: "/images/jikmis/cafe/jikmis-cafe-mango-drink.jpg",
+    alt: "Colorful mango iced drink at Jikmis Cafe"
   },
   {
-    src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80",
-    alt: "Cozy cafe and restaurant seating"
+    src: "/images/jikmis/cafe/jikmis-cafe-berry-drink.jpg",
+    alt: "Berry iced drink served at Jikmis Cafe"
   },
   {
-    src: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=900&q=80",
-    alt: "Iced coffee on a cafe table"
+    src: "/images/jikmis/cafe/jikmis-cafe-table-corner.jpg",
+    alt: "Wooden table corner inside Jikmis Cafe"
   },
   {
-    src: "https://images.unsplash.com/photo-1485808191679-5f86510681a2?auto=format&fit=crop&w=900&q=80",
-    alt: "Cafe counter with coffee cups and pastries"
+    src: "/images/jikmis/cafe/jikmis-cafe-lounge.jpg",
+    alt: "Bright lounge seating at Jikmis Cafe"
   }
 ];
 
