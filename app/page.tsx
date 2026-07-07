@@ -157,20 +157,17 @@ const cafeImages = [
 const popularCafeMenu = [
   "☕ Cappuccino",
   "☕ Café Latte",
-  "🥐 Butter Croissant",
-  "🥟 Chicken Momo",
-  "🍜 Thukpa",
+  "🧊 Iced Latte",
+  "🥤 Fresh Lemon Soda",
+  "🥐 Bakery Items",
   "🍰 Cheesecake"
 ];
 
 const cafeMenu = [
   { category: "Coffee", items: ["Espresso", "Americano", "Cappuccino", "Café Latte", "Mocha"] },
   { category: "Tea", items: ["Masala Tea", "Green Tea", "Lemon Tea", "Tibetan Butter Tea"] },
-  { category: "Breakfast", items: ["Omelette & Toast", "Pancakes", "Croissant", "Yogurt & Granola"] },
-  { category: "Light Meals", items: ["Veg Sandwich", "Chicken Sandwich", "French Fries"] },
-  { category: "Tibetan Special", items: ["Veg Momo", "Chicken Momo", "Beef Momo", "Thukpa"] },
-  { category: "Desserts", items: ["Cheesecake", "Chocolate Cake", "Brownie"] },
-  { category: "Cold Drinks", items: ["Iced Latte", "Fresh Lemon Soda", "Mango Smoothie"] }
+  { category: "Cold Drinks", items: ["Iced Latte", "Fresh Lemon Soda", "Mango Smoothie", "Seasonal Cooler"] },
+  { category: "Bakery", items: ["Butter Croissant", "Cheesecake", "Chocolate Cake", "Brownie", "Fresh Bakery Items"] }
 ];
 
 export default function Home() {
@@ -362,11 +359,11 @@ export default function Home() {
               <span className="cafe-badge">Open Daily</span>
             </div>
             <h2>☕ Jikmis Café</h2>
-            <p className="cafe-subtitle">Fresh Coffee • Homemade Food • Cozy Atmosphere</p>
+            <p className="cafe-subtitle">Fresh Coffee • Cold Drinks • Bakery Items</p>
             <p>
-              Take a break and enjoy freshly brewed coffee, delicious breakfasts, homemade pastries, and authentic
-              Tibetan specialties at Jikmis Café. Whether you are starting your morning, working remotely, or relaxing
-              after exploring Boudha, our cozy café offers a warm and peaceful atmosphere for every guest.
+              Take a break and enjoy freshly brewed coffee, refreshing cold drinks, and fresh bakery items at Jikmis
+              Café. Whether you are starting your morning, working remotely, or relaxing after exploring Boudha, our
+              cozy café offers a warm and peaceful atmosphere for every guest.
             </p>
 
             <div className="cafe-menu-card">
