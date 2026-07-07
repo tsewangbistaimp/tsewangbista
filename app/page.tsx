@@ -12,6 +12,7 @@ import {
   Layers3,
   Linkedin,
   Mail,
+  Menu,
   MapPin,
   MessageCircle,
   PackageCheck,
@@ -21,6 +22,7 @@ import {
   Star,
   Target,
   TrendingUp,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
@@ -142,6 +144,7 @@ type OrderStatus = "idle" | "sending" | "success" | "error";
 export default function Home() {
   const [orderStatus, setOrderStatus] = useState<OrderStatus>("idle");
   const [orderMessage, setOrderMessage] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const supportsFinePointer = window.matchMedia("(pointer: fine)").matches;
@@ -210,7 +213,7 @@ export default function Home() {
       <div className="cursor-glow" aria-hidden="true" />
 
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="TsewangBistaX home">
+        <a className="brand" href="#top" aria-label="TsewangBistaX home" onClick={() => setIsMenuOpen(false)}>
           <Image
             src="/images/tsewangbistax-logo.png"
             alt="TsewangBistaX logo"
@@ -221,9 +224,20 @@ export default function Home() {
           />
           <span>TsewangBistaX</span>
         </a>
-        <nav aria-label="Main navigation">
+        <button
+          className="menu-toggle"
+          type="button"
+          aria-expanded={isMenuOpen}
+          aria-controls="main-navigation"
+          aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          onClick={() => setIsMenuOpen((current) => !current)}
+        >
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          <span>Menu</span>
+        </button>
+        <nav id="main-navigation" className={isMenuOpen ? "is-open" : ""} aria-label="Main navigation">
           {navItems.map((item) => (
-            <a key={item} href={`#${item.toLowerCase()}`}>
+            <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setIsMenuOpen(false)}>
               {item}
             </a>
           ))}
