@@ -44,6 +44,29 @@ function sheetRange(tabName: string, range: string) {
   return `'${tabName.replace(/'/g, "''")}'!${range}`;
 }
 
+function getOrderErrorMessage(error: unknown) {
+  const maybeError = error as {
+    message?: string;
+    response?: {
+      data?: {
+        error?: string;
+        error_description?: string;
+      };
+    };
+  };
+  const googleError = maybeError.response?.data;
+
+  if (googleError?.error === "invalid_grant" || googleError?.error_description?.includes("JWT")) {
+    return "Google Sheets authentication failed. Please add the private key that belongs to GOOGLE_CLIENT_EMAIL.";
+  }
+
+  if (maybeError.message?.includes("No key or keyFile")) {
+    return "Google Sheets private key is missing. Please add GOOGLE_PRIVATE_KEY.";
+  }
+
+  return "Order could not be submitted. Please try again or contact us on WhatsApp.";
+}
+
 async function appendOrderToSheet(order: Required<OrderPayload>, orderId: string) {
   const auth = new google.auth.JWT({
     email: process.env.GOOGLE_CLIENT_EMAIL,
@@ -210,7 +233,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Order submission failed", error);
     return NextResponse.json(
-      { message: "Order could not be submitted. Please try again or contact us on WhatsApp." },
+      { message: getOrderErrorMessage(error) },
       { status: 500 }
     );
   }

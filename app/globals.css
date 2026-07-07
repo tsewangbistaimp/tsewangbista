@@ -34,6 +34,7 @@ body {
   color: var(--text);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
+  text-rendering: optimizeLegibility;
 }
 
 body::before {
@@ -162,6 +163,11 @@ nav a:hover,
   margin: 0 auto;
   max-width: 1180px;
   padding: 92px clamp(18px, 4vw, 28px);
+}
+
+.section-shell:not(.hero) {
+  content-visibility: auto;
+  contain-intrinsic-size: 760px;
 }
 
 .hero {
@@ -739,22 +745,42 @@ button:disabled {
   }
 }
 
+@media (pointer: coarse) {
+  .cursor-glow {
+    display: none;
+  }
+}
+
 @media (max-width: 980px) {
   .site-header {
     align-items: start;
     border-radius: 24px;
     grid-template-columns: 1fr;
+    max-width: min(760px, calc(100% - 24px));
+    top: 12px;
   }
 
   nav {
+    gap: 10px;
     justify-content: start;
+    mask-image: linear-gradient(90deg, #000 calc(100% - 42px), transparent);
     overflow-x: auto;
-    padding-bottom: 2px;
+    padding: 0 42px 4px 0;
+    scrollbar-width: none;
     width: 100%;
   }
 
+  nav::-webkit-scrollbar {
+    display: none;
+  }
+
   nav a {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
     flex: 0 0 auto;
+    min-height: 36px;
+    padding: 8px 12px;
   }
 
   .nav-cta {
@@ -770,7 +796,7 @@ button:disabled {
   }
 
   .hero {
-    padding-top: 180px;
+    padding-top: 166px;
   }
 
   .hero-visual {
@@ -792,44 +818,167 @@ button:disabled {
 }
 
 @media (max-width: 680px) {
+  :root {
+    --radius: 22px;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 72% 4%, rgba(255, 138, 0, 0.24), transparent 17rem),
+      radial-gradient(circle at 6% 38%, rgba(255, 179, 0, 0.1), transparent 15rem),
+      linear-gradient(180deg, #050505 0%, var(--bg) 48%, #070707 100%);
+  }
+
+  body::before {
+    background-size: 42px 42px;
+  }
+
+  .site-header {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .brand img {
+    height: 32px;
+    width: 58px;
+  }
+
   .brand span {
     display: none;
   }
 
   .section-shell {
-    padding-bottom: 68px;
-    padding-top: 68px;
+    padding: 58px 16px;
   }
 
   .hero {
-    gap: 34px;
+    gap: 28px;
     min-height: auto;
-    padding-top: 170px;
+    padding-top: 148px;
   }
 
   h1 {
-    font-size: clamp(3.2rem, 19vw, 5rem);
+    font-size: clamp(3.15rem, 18vw, 4.55rem);
+    line-height: 0.88;
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    font-size: clamp(2rem, 11vw, 2.85rem);
+  }
+
+  .eyebrow {
+    font-size: 0.72rem;
+    margin-bottom: 10px;
+  }
+
+  .hero-role {
+    font-size: 1rem;
+    line-height: 1.32;
+    margin-bottom: 14px;
+  }
+
+  .hero-text,
+  .about-grid p,
+  .section-heading p,
+  .portfolio-card p,
+  .venture-card p,
+  .testimonial-card p,
+  .contact-section p,
+  .service-list p {
+    line-height: 1.62;
   }
 
   .hero-visual {
-    min-height: 460px;
+    min-height: 390px;
   }
 
   .portrait-card {
+    border-radius: 24px;
     left: 0;
   }
 
-  .floating-stats,
+  .portrait-halo {
+    right: -8%;
+    top: 6%;
+    width: 90%;
+  }
+
+  .floating-stats {
+    bottom: 10px;
+    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    left: 10px;
+    padding: 10px;
+    right: 10px;
+  }
+
+  .floating-stats strong {
+    font-size: 1.08rem;
+  }
+
+  .floating-stats span {
+    font-size: 0.66rem;
+    line-height: 1.15;
+  }
+
   .form-grid,
   .testimonial-grid {
     grid-template-columns: 1fr;
   }
 
-  .floating-stats {
-    right: 0;
+  .glass-card {
+    backdrop-filter: blur(14px);
+    box-shadow: 0 16px 52px rgba(0, 0, 0, 0.28);
+  }
+
+  .about-card,
+  .venture-card,
+  .testimonial-card,
+  .services-panel,
+  .portfolio-panel,
+  .experience-list,
+  .contact-card,
+  .order-form {
+    padding: 18px;
+  }
+
+  .service-list article {
+    grid-template-columns: auto 1fr;
+    padding: 14px;
+  }
+
+  .service-list article > svg:last-child {
+    display: none;
+  }
+
+  .portfolio-card {
+    min-height: auto;
+  }
+
+  .project-art {
+    min-height: 104px;
+  }
+
+  .skill-cloud {
+    gap: 8px;
+  }
+
+  .skill-cloud span {
+    font-size: 0.88rem;
+    padding: 8px 10px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+    min-height: 50px;
+    padding: 13px 14px;
   }
 
   .button {
+    min-height: 50px;
     width: 100%;
   }
 
@@ -840,5 +989,6 @@ button:disabled {
   .site-footer {
     align-items: start;
     flex-direction: column;
+    padding-bottom: 34px;
   }
 }

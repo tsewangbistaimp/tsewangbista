@@ -144,6 +144,7 @@ export default function Home() {
   const [orderMessage, setOrderMessage] = useState("");
 
   useEffect(() => {
+    const supportsFinePointer = window.matchMedia("(pointer: fine)").matches;
     const moveGlow = (event: PointerEvent) => {
       document.documentElement.style.setProperty("--mouse-x", `${event.clientX}px`);
       document.documentElement.style.setProperty("--mouse-y", `${event.clientY}px`);
@@ -162,11 +163,15 @@ export default function Home() {
       { threshold: 0.14 }
     );
 
-    window.addEventListener("pointermove", moveGlow);
+    if (supportsFinePointer) {
+      window.addEventListener("pointermove", moveGlow);
+    }
     revealTargets.forEach((target) => observer.observe(target));
 
     return () => {
-      window.removeEventListener("pointermove", moveGlow);
+      if (supportsFinePointer) {
+        window.removeEventListener("pointermove", moveGlow);
+      }
       observer.disconnect();
     };
   }, []);
@@ -206,7 +211,14 @@ export default function Home() {
 
       <header className="site-header">
         <a className="brand" href="#top" aria-label="TsewangBistaX home">
-          <Image src="/images/tsewangbistax-logo.png" alt="TsewangBistaX logo" width={86} height={44} priority />
+          <Image
+            src="/images/tsewangbistax-logo.png"
+            alt="TsewangBistaX logo"
+            width={86}
+            height={44}
+            sizes="72px"
+            priority
+          />
           <span>TsewangBistaX</span>
         </a>
         <nav aria-label="Main navigation">
@@ -259,6 +271,7 @@ export default function Home() {
               width={900}
               height={1180}
               className="portrait"
+              sizes="(max-width: 680px) 100vw, (max-width: 980px) 80vw, 48vw"
               priority
             />
           </div>
