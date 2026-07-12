@@ -185,22 +185,32 @@ export default function Home() {
     setOrderMessage("Submitting your order...");
 
     const form = event.currentTarget;
-    const payload = Object.fromEntries(new FormData(form).entries());
+    const formEndpoint = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
+
+    if (!formEndpoint) {
+      setOrderStatus("error");
+      setOrderMessage(
+        "Order system is not configured yet. Please set NEXT_PUBLIC_FORMSPREE_ENDPOINT."
+      );
+      return;
+    }
+
+    const formData = new FormData(form);
 
     try {
-      const response = await fetch("/api/orders", {
+      const response = await fetch(formEndpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        headers: { Accept: "application/json" },
+        body: formData
       });
-      const result = (await response.json()) as { message?: string };
 
       if (!response.ok) {
-        throw new Error(result.message || "Order could not be submitted.");
+        const result = (await response.json().catch(() => null)) as { message?: string } | null;
+        throw new Error(result?.message || "Order could not be submitted.");
       }
 
       setOrderStatus("success");
-      setOrderMessage(result.message || "Order received. Confirmation email sent.");
+      setOrderMessage("Order received. It has been sent to tsewangbistaimp@gmail.com.");
       form.reset();
     } catch (error) {
       setOrderStatus("error");
@@ -431,8 +441,7 @@ export default function Home() {
           <p className="eyebrow">Order Inquiry</p>
           <h2>Place a shoe, apple, or business inquiry order.</h2>
           <p>
-            Orders are designed to go to Google Sheets, notify me by email, and send the customer an order received
-            confirmation when valid environment credentials are configured.
+            Orders are sent straight to tsewangbistaimp@gmail.com so I can follow up quickly.
           </p>
         </div>
         <form className="glass-card order-form" onSubmit={handleOrderSubmit} data-reveal>
