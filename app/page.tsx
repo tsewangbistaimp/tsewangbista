@@ -3,6 +3,7 @@
 import {
   ArrowUpRight,
   Bot,
+  Building2,
   CheckCircle2,
   Code2,
   Github,
@@ -93,6 +94,13 @@ const ventures = [
     title: "Hospitality Leadership",
     tag: "Operations & service",
     body: "Hotel management, supervision, housekeeping, barista service, and reliable guest experience."
+  },
+  {
+    icon: Building2,
+    title: "Jikmis Apartment",
+    tag: "Serviced apartments, Boudha",
+    body: "Luxury serviced studios and family apartments in Boudha, Kathmandu, with an in-house cafe, 24/7 hot water, kitchen setup, and direct booking support.",
+    href: "https://jikmisapartment.tsewangbista.com/"
   }
 ];
 
@@ -390,14 +398,38 @@ export default function Home() {
           <h2>Technology meets real-world business.</h2>
         </div>
         <div className="venture-grid">
-          {ventures.map(({ icon: Icon, title, tag, body }) => (
-            <article className="glass-card venture-card" key={title} data-reveal>
-              <Icon size={28} />
-              <span>{tag}</span>
-              <h3>{title}</h3>
-              <p>{body}</p>
-            </article>
-          ))}
+          {ventures.map(({ icon: Icon, title, tag, body, href }) => {
+            const content = (
+              <>
+                <Icon size={28} />
+                <span>{tag}</span>
+                <h3>{title}</h3>
+                <p>{body}</p>
+                {href ? (
+                  <span className="venture-link">
+                    Visit site <ArrowUpRight size={16} />
+                  </span>
+                ) : null}
+              </>
+            );
+
+            return href ? (
+              <a
+                className="glass-card venture-card"
+                key={title}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                data-reveal
+              >
+                {content}
+              </a>
+            ) : (
+              <article className="glass-card venture-card" key={title} data-reveal>
+                {content}
+              </article>
+            );
+          })}
         </div>
       </section>
 
