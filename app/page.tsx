@@ -76,7 +76,8 @@ const services = [
   {
     icon: Layers3,
     title: "UI/UX Design",
-    body: "Premium interfaces, product flows, Figma design, responsive layouts, and brand-first digital experiences."
+    body: "Premium interfaces, product flows, Figma design, responsive layouts, and brand-first digital experiences.",
+    href: "/services/ui-ux-design"
   }
 ];
 
