@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowUpRight,
   Camera,
@@ -112,20 +113,38 @@ export default function ProofSprintPage() {
       </Link>
 
       <section className="section-shell sprint-hero" data-reveal>
-        <p className="eyebrow">The 30-Day Proof Sprint</p>
-        <h1 className="sprint-headline">
-          Get Real Customers Messaging You in 30 Days — Or We Work Your Next Month Free
-        </h1>
-        <p className="sprint-subhead">
-          No contracts. No confusing reports. Just a simple system that gets your shop seen by the right
-          people — and real proof it&apos;s working, every single week.
-        </p>
-        <div className="hero-actions">
-          <LeadCta
-            label="Message Us on WhatsApp Now"
-            context="30-Day Proof Sprint — Hero CTA"
-            whatsappMessage={PROOF_MESSAGE}
-          />
+        <div className="sprint-hero-grid">
+          <div className="sprint-hero-copy">
+            <p className="eyebrow">The 30-Day Proof Sprint</p>
+            <h1 className="sprint-headline">
+              Get Real Customers Messaging You in 30 Days — Or We Work Your Next Month Free
+            </h1>
+            <p className="sprint-subhead">
+              No contracts. No confusing reports. Just a simple system that gets your shop seen by the
+              right people — and real proof it&apos;s working, every single week.
+            </p>
+            <div className="hero-actions">
+              <LeadCta
+                label="Message Us on WhatsApp Now"
+                context="30-Day Proof Sprint — Hero CTA"
+                whatsappMessage={PROOF_MESSAGE}
+              />
+            </div>
+          </div>
+          <div className="hero-visual">
+            <div className="portrait-halo" />
+            <div className="portrait-card">
+              <Image
+                src="/images/tsewang-bista-hospitality-leadership.jpg"
+                alt="Tsewang Bista — Hospitality Leadership"
+                width={1086}
+                height={1448}
+                className="portrait"
+                sizes="(max-width: 900px) 60vw, 380px"
+                priority
+              />
+            </div>
+          </div>
         </div>
       </section>
 
