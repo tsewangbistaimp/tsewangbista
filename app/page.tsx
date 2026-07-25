@@ -100,7 +100,8 @@ const ventures = [
     icon: Sprout,
     title: "Mustang Apple Farming",
     tag: "Agriculture business",
-    body: "A Mustang-rooted venture connecting premium local apples with stronger branding and distribution."
+    body: "A Mustang-rooted venture connecting premium local apples with stronger branding and distribution.",
+    href: "/chefs-trial-crate"
   },
   {
     icon: Hotel,
@@ -460,6 +461,7 @@ export default function Home() {
         </div>
         <div className="venture-grid">
           {ventures.map(({ icon: Icon, title, tag, body, href }) => {
+            const isInternal = href?.startsWith("/");
             const content = (
               <>
                 <Icon size={28} />
@@ -468,11 +470,19 @@ export default function Home() {
                 <p>{body}</p>
                 {href ? (
                   <span className="venture-link">
-                    Visit site <ArrowUpRight size={16} />
+                    {isInternal ? "View Details" : "Visit site"} <ArrowUpRight size={16} />
                   </span>
                 ) : null}
               </>
             );
+
+            if (href && isInternal) {
+              return (
+                <Link className="glass-card venture-card" key={title} href={href} data-reveal>
+                  {content}
+                </Link>
+              );
+            }
 
             return href ? (
               <a
