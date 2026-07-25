@@ -577,7 +577,22 @@ a.portfolio-card {
   border-radius: 18px;
   display: flex;
   min-height: 130px;
+  overflow: hidden;
   padding: 14px;
+  position: relative;
+}
+
+.project-art-image {
+  object-fit: cover;
+  z-index: 0;
+}
+
+.project-art.has-image::after {
+  background: linear-gradient(180deg, rgba(9, 9, 9, 0.05) 0%, rgba(9, 9, 9, 0.78) 100%);
+  content: "";
+  inset: 0;
+  position: absolute;
+  z-index: 0;
 }
 
 .project-art span {
@@ -588,6 +603,8 @@ a.portfolio-card {
   font-size: 0.74rem;
   font-weight: 900;
   padding: 7px 10px;
+  position: relative;
+  z-index: 1;
 }
 
 .portfolio-card h3 {

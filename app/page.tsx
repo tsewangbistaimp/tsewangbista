@@ -108,7 +108,8 @@ const ventures = [
     icon: Hotel,
     title: "Hospitality Leadership",
     tag: "Operations & service",
-    body: "Hotel management, supervision, housekeeping, barista service, and reliable guest experience."
+    body: "Hotel management, supervision, housekeeping, barista service, and reliable guest experience.",
+    href: "/proof-sprint"
   },
   {
     icon: Building2,
@@ -123,7 +124,8 @@ const portfolio = [
   {
     title: "AI Growth Engine",
     type: "Marketing Automation",
-    body: "A modern lead and content workflow for faster campaign execution."
+    body: "A modern lead and content workflow for faster campaign execution.",
+    image: "/images/tsewang-bista-ai-growth-engine.jpg"
   },
   {
     title: "Shoe Commerce System",
@@ -430,7 +432,16 @@ export default function Home() {
             {portfolio.map((item) => {
               const content = (
                 <>
-                  <div className="project-art">
+                  <div className={`project-art${item.image ? " has-image" : ""}`}>
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={`${item.title} preview`}
+                        fill
+                        className="project-art-image"
+                        sizes="(max-width: 980px) 90vw, 420px"
+                      />
+                    ) : null}
                     <span>{item.type}</span>
                   </div>
                   <h3>{item.title}</h3>
