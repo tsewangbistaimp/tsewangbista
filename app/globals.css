@@ -1215,3 +1215,27 @@ button:disabled {
 .demo-tech-label {
   margin-top: 22px;
 }
+
+.lead-cta-panel {
+  margin-top: 8px;
+  max-width: 420px;
+  padding: 22px;
+}
+
+.lead-cta-title {
+  color: var(--gold);
+  font-weight: 850;
+  margin-bottom: 14px;
+}
+
+.lead-cta-skip {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lead-cta-skip:hover {
+  color: var(--gold);
+}

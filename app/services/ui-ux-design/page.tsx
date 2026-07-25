@@ -8,23 +8,18 @@ import {
   Gauge,
   GitBranch,
   Layout,
-  MessageCircle,
   MousePointerClick,
   Palette,
   Search
 } from "lucide-react";
 import ScrollEffects from "../../components/ScrollEffects";
+import LeadCta from "../../components/LeadCta";
 
 export const metadata: Metadata = {
   title: "UI/UX Design",
   description:
     "Premium digital experiences designed around users, brands, and business goals — modern interfaces, seamless user journeys, and responsive designs that improve usability, engagement, and conversions."
 };
-
-const WHATSAPP_NUMBER = "9779862568506";
-const startDesignHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-  "Hi! I'd like to start a UI/UX design project."
-)}`;
 
 const whatWeDesign = [
   "Website UI Design",
@@ -143,10 +138,11 @@ export default function UiUxDesignPage() {
               <ArrowUpRight size={18} />
               View Design Projects
             </Link>
-            <a className="button secondary" href={startDesignHref} target="_blank" rel="noreferrer">
-              <MessageCircle size={18} />
-              Start Your Design Project
-            </a>
+            <LeadCta
+              label="Start Your Design Project"
+              context="UI/UX Design — Start Your Design Project"
+              variant="secondary"
+            />
           </div>
         </div>
       </section>

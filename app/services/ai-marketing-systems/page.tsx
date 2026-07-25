@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, CheckCircle2, MessageCircle, Rocket } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, CheckCircle2, Rocket } from "lucide-react";
 import ScrollEffects from "../../components/ScrollEffects";
+import LeadCta from "../../components/LeadCta";
 
 export const metadata: Metadata = {
   title: "AI Marketing Systems",
   description:
     "AI-powered marketing solutions that automate lead generation, customer engagement, content creation, and business growth — intelligent systems that help businesses attract, nurture, and convert customers more efficiently."
 };
-
-const WHATSAPP_NUMBER = "9779862568506";
-const strategyCallHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-  "Hi! I'd like to book a free AI Marketing Systems strategy call."
-)}`;
 
 const whatWeBuild = [
   "AI Content Workflows",
@@ -97,10 +93,7 @@ export default function AiMarketingSystemsPage() {
             Get real leads with Meta Ads, landing pages, AI automation, and follow-up systems.
           </p>
           <div className="hero-actions">
-            <a className="button primary" href={strategyCallHref} target="_blank" rel="noreferrer">
-              <MessageCircle size={18} />
-              Book a Free Strategy Call
-            </a>
+            <LeadCta label="Book a Free Strategy Call" context="AI Marketing Systems — Strategy Call" />
             <Link className="button secondary" href="/lead-flow-sprint">
               <ArrowUpRight size={18} />
               Explore AI Solutions

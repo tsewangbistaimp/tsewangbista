@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe2, MessageCircle } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe2 } from "lucide-react";
 import ScrollEffects from "../../components/ScrollEffects";
+import LeadCta from "../../components/LeadCta";
 
 export const metadata: Metadata = {
   title: "Web Development",
   description:
     "Modern, fast, and scalable websites, booking systems, landing pages, dashboards, and custom web applications designed to help businesses grow online."
 };
-
-const WHATSAPP_NUMBER = "9779862568506";
-const startProjectHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-  "Hi! I'd like to start a web development project."
-)}`;
 
 const whatWeBuild = [
   "Business Websites",
@@ -90,10 +86,11 @@ export default function WebDevelopmentPage() {
               <ArrowUpRight size={18} />
               View Live Demo
             </a>
-            <a className="button secondary" href={startProjectHref} target="_blank" rel="noreferrer">
-              <MessageCircle size={18} />
-              Start Your Project
-            </a>
+            <LeadCta
+              label="Start Your Project"
+              context="Web Development — Start Your Project"
+              variant="secondary"
+            />
           </div>
         </div>
       </section>

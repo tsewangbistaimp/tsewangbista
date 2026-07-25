@@ -9,7 +9,6 @@ import {
   Filter,
   LineChart,
   Mail,
-  MessageCircle,
   Rocket,
   Search,
   Settings2,
@@ -17,26 +16,13 @@ import {
   TrendingUp
 } from "lucide-react";
 import ScrollEffects from "../../components/ScrollEffects";
+import LeadCta from "../../components/LeadCta";
 
 export const metadata: Metadata = {
   title: "Performance Marketing",
   description:
     "Performance marketing that generates real leads and sales — Meta Ads, social growth, email marketing, and conversion-focused strategy designed for measurable results."
 };
-
-const WHATSAPP_NUMBER = "9779862568506";
-const strategyCallHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-  "Hi! I'd like to book a free Performance Marketing strategy call."
-)}`;
-
-function WhatsappCta({ label }: { label: string }) {
-  return (
-    <a className="button primary" href={strategyCallHref} target="_blank" rel="noreferrer">
-      <MessageCircle size={18} />
-      {label}
-    </a>
-  );
-}
 
 const offers = [
   {
@@ -134,7 +120,7 @@ export default function PerformanceMarketingPage() {
           results.
         </p>
         <div className="hero-actions">
-          <WhatsappCta label="Get a Free Strategy Call" />
+          <LeadCta label="Get a Free Strategy Call" context="Performance Marketing — Free Strategy Call" />
         </div>
       </section>
 
@@ -244,7 +230,7 @@ export default function PerformanceMarketingPage() {
           <p>Book a free consultation and discover how we can generate more leads, customers, and sales for your business.</p>
         </div>
         <div className="hero-actions">
-          <WhatsappCta label="Schedule a Free Call" />
+          <LeadCta label="Schedule a Free Call" context="Performance Marketing — Schedule a Free Call" />
         </div>
       </section>
 

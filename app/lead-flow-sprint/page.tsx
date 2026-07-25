@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ScrollEffects from "../components/ScrollEffects";
+import LeadCta from "../components/LeadCta";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -8,7 +9,6 @@ import {
   CheckCircle2,
   Gauge,
   Inbox,
-  MessageCircle,
   PhoneCall,
   Rocket,
   Users
@@ -19,19 +19,6 @@ export const metadata: Metadata = {
   description:
     "A done-for-you lead system for cold Meta Ads traffic: Meta Ads, a high-converting landing page, and automated follow-up that turns your ads and social media into real, paying leads in 30 days."
 };
-
-const WHATSAPP_NUMBER = "9779862568506";
-const WHATSAPP_MESSAGE = "Hi! I want the 30-Day Lead Flow Sprint.";
-const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
-
-function WhatsappCta({ label = "Get Your 30-Day Lead Flow Sprint" }: { label?: string }) {
-  return (
-    <a className="button primary" href={whatsappHref} target="_blank" rel="noreferrer">
-      <MessageCircle size={18} />
-      {label}
-    </a>
-  );
-}
 
 const steps = [
   {
@@ -133,7 +120,7 @@ export default function LeadFlowSprintPage() {
           inquiries — without you having to post more, chase leads, or figure out ads on your own.
         </p>
         <div className="hero-actions">
-          <WhatsappCta />
+          <LeadCta label="Get Your 30-Day Lead Flow Sprint" context="30-Day Lead Flow Sprint" />
         </div>
       </section>
 
@@ -186,7 +173,7 @@ export default function LeadFlowSprintPage() {
           <p>You don&apos;t need to learn ads. You don&apos;t need to chase leads manually. You just need the system running — and we build it for you.</p>
         </div>
         <div className="hero-actions">
-          <WhatsappCta label="Start My Sprint" />
+          <LeadCta label="Start My Sprint" context="30-Day Lead Flow Sprint — Start My Sprint" />
         </div>
       </section>
 
@@ -238,7 +225,7 @@ export default function LeadFlowSprintPage() {
           ))}
         </div>
         <div className="hero-actions">
-          <WhatsappCta label="Claim My Sprint Spot" />
+          <LeadCta label="Claim My Sprint Spot" context="30-Day Lead Flow Sprint — Claim My Sprint Spot" />
         </div>
       </section>
 
@@ -304,7 +291,7 @@ export default function LeadFlowSprintPage() {
           <p className="sprint-muted">No fine print. No disappearing act. We&apos;re putting the risk on us, not you.</p>
         </div>
         <div className="hero-actions">
-          <WhatsappCta label="Claim The Guarantee" />
+          <LeadCta label="Claim The Guarantee" context="30-Day Lead Flow Sprint — Claim The Guarantee" />
         </div>
       </section>
 
@@ -329,7 +316,7 @@ export default function LeadFlowSprintPage() {
           <p>You need a system that brings leads to you — and 30 days to prove it works.</p>
         </div>
         <div className="hero-actions">
-          <WhatsappCta label="Get Your 30-Day Lead Flow Sprint" />
+          <LeadCta label="Get Your 30-Day Lead Flow Sprint" context="30-Day Lead Flow Sprint — Final CTA" />
         </div>
         <p className="sprint-muted">No long contracts. No risk. Just real leads, or we work free until you get them.</p>
       </section>

@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 const navItems = ["About", "Skills", "Work", "Services", "Orders", "Contact"];
@@ -161,6 +162,7 @@ const socials = [
 type OrderStatus = "idle" | "sending" | "success" | "error";
 
 export default function Home() {
+  const router = useRouter();
   const [orderStatus, setOrderStatus] = useState<OrderStatus>("idle");
   const [orderMessage, setOrderMessage] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -231,6 +233,7 @@ export default function Home() {
       setOrderStatus("success");
       setOrderMessage("Order received. It has been sent to contact@tsewangbista.com.");
       form.reset();
+      router.push(`/thank-you?service=${encodeURIComponent("Order Inquiry")}`);
     } catch (error) {
       setOrderStatus("error");
       setOrderMessage(error instanceof Error ? error.message : "Order could not be submitted.");
