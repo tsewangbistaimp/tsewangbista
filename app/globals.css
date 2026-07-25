@@ -1190,3 +1190,28 @@ button:disabled {
   flex-shrink: 0;
   margin-top: 3px;
 }
+
+.demo-title-row {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.demo-title-row svg {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.demo-title-row h3 {
+  margin: 0;
+}
+
+.demo-summary {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.demo-tech-label {
+  margin-top: 22px;
+}

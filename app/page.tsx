@@ -58,7 +58,8 @@ const services = [
   {
     icon: Code2,
     title: "Web Development",
-    body: "Modern websites, portfolio systems, landing pages, dashboards, and scalable web apps with clean code."
+    body: "Modern websites, portfolio systems, landing pages, dashboards, and scalable web apps with clean code.",
+    href: "/services/web-development"
   },
   {
     icon: Bot,
