@@ -29,6 +29,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import LeadCta from "./components/LeadCta";
 
 const navItems = ["About", "Skills", "Work", "Services", "Orders", "Contact"];
 
@@ -305,10 +306,7 @@ export default function Home() {
               My Services
               <ArrowUpRight size={18} />
             </a>
-            <a className="button secondary" href="https://wa.me/9779862568506" target="_blank" rel="noreferrer">
-              WhatsApp
-              <MessageCircle size={18} />
-            </a>
+            <LeadCta label="Contact Us" context="Homepage — Contact Us" variant="secondary" />
           </div>
           <div className="availability">
             <span />

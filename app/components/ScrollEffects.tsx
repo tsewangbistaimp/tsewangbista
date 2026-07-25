@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 
 /**
  * Shared homepage-style motion: cursor-tracked glow + reveal-on-scroll for any
@@ -8,12 +8,15 @@ import { useEffect } from "react";
  * nothing) to get the same animation behaviour as the main portfolio page.
  */
 export default function ScrollEffects() {
-  useEffect(() => {
-    // Always land at the top of a freshly opened page — some browsers restore
-    // the previous page's scroll offset on client-side navigation, which made
-    // these pages appear to open mid-page instead of from the beginning.
+  // Runs synchronously before the browser paints, so a freshly opened page
+  // never flashes at whatever scroll offset the previous page left behind
+  // (this was especially visible on shorter pages, where the old scroll
+  // position could land past the bottom of the new page for a frame).
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
 
+  useEffect(() => {
     const supportsFinePointer = window.matchMedia("(pointer: fine)").matches;
     const moveGlow = (event: PointerEvent) => {
       document.documentElement.style.setProperty("--mouse-x", `${event.clientX}px`);

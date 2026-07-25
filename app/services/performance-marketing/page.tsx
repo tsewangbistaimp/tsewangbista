@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  ArrowLeft,
   ArrowUpRight,
   BarChart3,
   CheckCircle2,
@@ -17,6 +16,7 @@ import {
   TrendingUp
 } from "lucide-react";
 import ScrollEffects from "../../components/ScrollEffects";
+import BackToPortfolio from "../../components/BackToPortfolio";
 import LeadCta from "../../components/LeadCta";
 
 export const metadata: Metadata = {
@@ -107,10 +107,7 @@ export default function PerformanceMarketingPage() {
       <ScrollEffects />
       <div className="cursor-glow" aria-hidden="true" />
 
-      <Link href="/" className="back-link">
-        <ArrowLeft size={16} />
-        Back to portfolio
-      </Link>
+      <BackToPortfolio />
 
       <section className="section-shell sprint-hero" data-reveal>
         <div className="sprint-hero-grid">

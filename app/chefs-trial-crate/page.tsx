@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowUpRight,
   CheckCircle2,
   ClipboardCheck,
@@ -14,6 +13,7 @@ import {
   Star
 } from "lucide-react";
 import ScrollEffects from "../components/ScrollEffects";
+import BackToPortfolio from "../components/BackToPortfolio";
 import LeadCta from "../components/LeadCta";
 
 export const metadata: Metadata = {
@@ -119,10 +119,7 @@ export default function ChefsTrialCratePage() {
       <ScrollEffects />
       <div className="cursor-glow" aria-hidden="true" />
 
-      <Link href="/" className="back-link">
-        <ArrowLeft size={16} />
-        Back to portfolio
-      </Link>
+      <BackToPortfolio />
       <Link href="/#work" className="back-link">
         <ArrowUpRight size={16} />
         Part of Mustang Apple Farming

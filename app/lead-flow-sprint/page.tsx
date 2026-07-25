@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ScrollEffects from "../components/ScrollEffects";
+import BackToPortfolio from "../components/BackToPortfolio";
 import LeadCta from "../components/LeadCta";
 import {
-  ArrowLeft,
   ArrowUpRight,
   Bot,
   CheckCircle2,
@@ -101,10 +101,7 @@ export default function LeadFlowSprintPage() {
       <ScrollEffects />
       <div className="cursor-glow" aria-hidden="true" />
 
-      <Link href="/" className="back-link">
-        <ArrowLeft size={16} />
-        Back to portfolio
-      </Link>
+      <BackToPortfolio />
       <Link href="/services/performance-marketing" className="back-link">
         <ArrowUpRight size={16} />
         Part of our Performance Marketing service
