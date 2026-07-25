@@ -64,7 +64,8 @@ const services = [
   {
     icon: Bot,
     title: "AI Marketing Systems",
-    body: "AI content workflows, lead funnels, automations, campaign ideas, and smarter growth operations."
+    body: "AI content workflows, lead funnels, automations, campaign ideas, and smarter growth operations.",
+    href: "/services/ai-marketing-systems"
   },
   {
     icon: Target,
