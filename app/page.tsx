@@ -26,6 +26,7 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 
 const navItems = ["About", "Skills", "Work", "Services", "Orders", "Contact"];
@@ -119,6 +120,12 @@ const portfolio = [
     title: "Luxury Portfolio UI",
     type: "Web / UI Design",
     body: "Premium personal brand presentation for clients, partners, investors, and employers."
+  },
+  {
+    title: "30-Day Lead Flow Sprint",
+    type: "Marketing Offer / Landing Page",
+    body: "A done-for-you lead system: Meta Ads, a high-converting landing page, and automated follow-up that turns cold traffic into real leads.",
+    href: "/lead-flow-sprint"
   }
 ];
 
@@ -379,15 +386,27 @@ export default function Home() {
           <p className="eyebrow">Selected Work</p>
           <h2>Featured Projects</h2>
           <div className="portfolio-grid">
-            {portfolio.map((item) => (
-              <article className="portfolio-card" key={item.title}>
-                <div className="project-art">
-                  <span>{item.type}</span>
-                </div>
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-              </article>
-            ))}
+            {portfolio.map((item) => {
+              const content = (
+                <>
+                  <div className="project-art">
+                    <span>{item.type}</span>
+                  </div>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </>
+              );
+
+              return item.href ? (
+                <Link className="portfolio-card" key={item.title} href={item.href}>
+                  {content}
+                </Link>
+              ) : (
+                <article className="portfolio-card" key={item.title}>
+                  {content}
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>

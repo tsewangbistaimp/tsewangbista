@@ -415,6 +415,10 @@ a.venture-card {
   text-decoration: none;
 }
 
+a.portfolio-card {
+  display: block;
+}
+
 .venture-link {
   display: inline-flex;
   align-items: center;
@@ -1035,4 +1039,124 @@ button:disabled {
     flex-direction: column;
     padding-bottom: 34px;
   }
+}
+
+/* Lead Flow Sprint landing page */
+.sprint-page .back-link {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  gap: 8px;
+  font-size: 0.9rem;
+  margin: 28px clamp(18px, 4vw, 28px) 0;
+}
+
+.sprint-page .back-link:hover {
+  color: var(--gold);
+}
+
+.sprint-hero {
+  padding-bottom: 40px;
+  padding-top: 48px;
+}
+
+.sprint-headline {
+  font-size: clamp(2.1rem, 5vw, 3.9rem);
+  line-height: 1.06;
+  margin-bottom: 20px;
+  max-width: 920px;
+}
+
+.sprint-subhead {
+  color: var(--soft);
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  line-height: 1.6;
+  max-width: 720px;
+  margin-bottom: 8px;
+}
+
+.sprint-body p {
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: 14px;
+  max-width: 760px;
+}
+
+.sprint-body p:last-child {
+  margin-bottom: 0;
+}
+
+.sprint-section {
+  padding-bottom: 56px;
+  padding-top: 56px;
+}
+
+.sprint-section:not(:last-of-type) {
+  border-bottom: 1px solid var(--line);
+}
+
+.sprint-card {
+  padding: 28px clamp(20px, 4vw, 40px);
+}
+
+.faq-list {
+  display: grid;
+  gap: 0;
+  margin-top: 22px;
+}
+
+.faq-item {
+  border-top: 1px solid var(--line);
+  padding: 22px 0;
+}
+
+.faq-item:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.faq-item h3 {
+  color: var(--gold);
+  font-size: 1.05rem;
+}
+
+.faq-item p {
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.testimonial-placeholder {
+  border: 1px dashed var(--line-strong);
+  border-radius: 18px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 20px;
+  padding: 18px 20px;
+}
+
+.guarantee-box {
+  background: rgba(255, 179, 0, 0.06);
+  border: 1px solid var(--line-strong);
+}
+
+.urgency-box {
+  border-left: 3px solid var(--gold);
+  padding-left: 22px;
+}
+
+.final-cta {
+  text-align: left;
+}
+
+@media (max-width: 720px) {
+  .sprint-headline {
+    font-size: clamp(1.8rem, 8vw, 2.6rem);
+  }
+}
+
+.sprint-muted {
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 12px;
 }
