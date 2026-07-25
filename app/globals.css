@@ -1343,16 +1343,8 @@ button:disabled {
 
 .services-banner-image {
   display: block;
-  height: 220px;
-  object-fit: cover;
-  object-position: top center;
+  height: auto;
   width: 100%;
-}
-
-@media (max-width: 680px) {
-  .services-banner-image {
-    height: 170px;
-  }
 }
 
 .sprint-hero-grid {

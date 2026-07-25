@@ -301,7 +301,7 @@ export default function Home() {
           </p>
           <div className="hero-actions">
             <a className="button primary" href="#work">
-              View My Work
+              My Services
               <ArrowUpRight size={18} />
             </a>
             <a className="button secondary" href="https://wa.me/9779862568506" target="_blank" rel="noreferrer">
@@ -393,12 +393,12 @@ export default function Home() {
           <h2>Services</h2>
           <div className="services-banner">
             <Image
-              src="/images/tsewang-bista-ai-marketing-banner.jpg"
+              src="/images/tsewang-bista-hero-banner.jpg"
               alt="AI powered digital marketing and AI web design services"
-              width={1086}
-              height={1448}
+              width={1774}
+              height={887}
               className="services-banner-image"
-              sizes="(max-width: 980px) 90vw, 420px"
+              sizes="(max-width: 980px) 90vw, 520px"
             />
           </div>
           <div className="service-list">

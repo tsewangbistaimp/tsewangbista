@@ -9,6 +9,11 @@ import { useEffect } from "react";
  */
 export default function ScrollEffects() {
   useEffect(() => {
+    // Always land at the top of a freshly opened page — some browsers restore
+    // the previous page's scroll offset on client-side navigation, which made
+    // these pages appear to open mid-page instead of from the beginning.
+    window.scrollTo(0, 0);
+
     const supportsFinePointer = window.matchMedia("(pointer: fine)").matches;
     const moveGlow = (event: PointerEvent) => {
       document.documentElement.style.setProperty("--mouse-x", `${event.clientX}px`);
