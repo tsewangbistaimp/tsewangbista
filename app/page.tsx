@@ -38,6 +38,13 @@ const metrics = [
   ["5", "Languages"]
 ];
 
+const heroServiceBadges = [
+  { icon: Code2, label: "Web Development" },
+  { icon: Bot, label: "AI Marketing Systems" },
+  { icon: Target, label: "Performance Marketing" },
+  { icon: Layers3, label: "UI/UX Design" }
+];
+
 const skills = [
   "React",
   "Next.js",
@@ -312,14 +319,22 @@ export default function Home() {
           <div className="portrait-halo" />
           <div className="portrait-card">
             <Image
-              src="/images/tsewang-bista-profile.jpeg"
-              alt="Portrait of Tsewang Bista"
-              width={900}
-              height={1180}
+              src="/images/tsewang-bista-ai-marketing-banner.jpg"
+              alt="Tsewang Bista — AI powered digital marketing and AI web design"
+              width={1086}
+              height={1448}
               className="portrait"
               sizes="(max-width: 680px) 100vw, (max-width: 980px) 80vw, 48vw"
               priority
             />
+          </div>
+          <div className="floating-services glass-card">
+            {heroServiceBadges.map(({ icon: Icon, label }) => (
+              <span key={label}>
+                <Icon size={14} />
+                {label}
+              </span>
+            ))}
           </div>
           <div className="floating-stats glass-card">
             {metrics.map(([value, label]) => (
