@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MessageCircle, Send } from "lucide-react";
+import { MessageCircle, Send, X } from "lucide-react";
 
 type LeadCtaProps = {
   label: string;
@@ -30,6 +30,12 @@ export default function LeadCta({
     whatsappMessage || `Hi! I'm interested in: ${context}`
   )}`;
 
+  function closePanel() {
+    setIsOpen(false);
+    setStatus("idle");
+    setError("");
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("sending");
@@ -46,6 +52,11 @@ export default function LeadCta({
     formData.set("_subject", `New interest: ${context}`);
     formData.set("interest", context);
 
+    // Open WhatsApp immediately, while still inside the click/submit gesture — most
+    // browsers block window.open() once an `await` has run, so this has to happen
+    // before the network request, not after it.
+    window.open(whatsappHref, "_blank", "noreferrer");
+
     try {
       const response = await fetch(formEndpoint, {
         method: "POST",
@@ -54,10 +65,11 @@ export default function LeadCta({
       });
 
       if (!response.ok) {
-        throw new Error("Could not send your details. Please try WhatsApp instead.");
+        throw new Error(
+          "Could not send your details. Your WhatsApp chat is still open — you can continue there."
+        );
       }
 
-      window.open(whatsappHref, "_blank", "noreferrer");
       router.push(`/thank-you?service=${encodeURIComponent(context)}`);
     } catch (err) {
       setStatus("error");
@@ -76,6 +88,9 @@ export default function LeadCta({
 
   return (
     <div className="lead-cta-panel glass-card">
+      <button type="button" className="lead-cta-close" onClick={closePanel} aria-label="Close">
+        <X size={16} />
+      </button>
       <p className="lead-cta-title">{label}</p>
       <form className="order-form" onSubmit={handleSubmit}>
         <label>
@@ -92,7 +107,7 @@ export default function LeadCta({
         </label>
         <button className="button primary" type="submit" disabled={status === "sending"}>
           <Send size={18} />
-          {status === "sending" ? "Sending..." : "Send & Continue on WhatsApp"}
+          {status === "sending" ? "Sending..." : "Submit"}
         </button>
         {status === "error" ? (
           <p className="form-status error" role="status">
