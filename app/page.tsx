@@ -287,7 +287,7 @@ export default function Home() {
             Tsewang
             <span>Bista.</span>
           </h1>
-          <p className="hero-role">Senior-spirited developer, AI marketer & multi-business entrepreneur.</p>
+          <p className="hero-role">I’m a developer, AI marketer, and entrepreneur focused on turning ideas into practical solutions.</p>
           <p className="hero-text">
             I build premium digital experiences, practical growth systems, and business ventures across technology,
             AI marketing, shoes, Mustang apples, and hospitality.
