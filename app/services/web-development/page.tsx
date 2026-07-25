@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe2 } from "lucide-react";
 import ScrollEffects from "../../components/ScrollEffects";
 import LeadCta from "../../components/LeadCta";
@@ -33,12 +34,29 @@ export default function WebDevelopmentPage() {
       </Link>
 
       <section className="section-shell sprint-hero" data-reveal>
-        <p className="eyebrow">Web Development</p>
-        <h1 className="sprint-headline">Web Development</h1>
-        <p className="sprint-subhead">
-          Modern, fast, and scalable websites, booking systems, landing pages, dashboards, and custom
-          web applications designed to help businesses grow online.
-        </p>
+        <div className="sprint-hero-grid">
+          <div className="sprint-hero-copy">
+          <p className="eyebrow">Web Development</p>
+          <h1 className="sprint-headline">Web Development</h1>
+          <p className="sprint-subhead">
+            Modern, fast, and scalable websites, booking systems, landing pages, dashboards, and custom
+            web applications designed to help businesses grow online.
+          </p>
+          </div>
+          <div className="hero-visual">
+            <div className="portrait-halo" />
+            <div className="portrait-card">
+              <Image
+                src="/images/tsewang-bista-ai-marketing-banner.jpg"
+                alt="Tsewang Bista — AI powered digital marketing and AI web design"
+                width={1086}
+                height={1448}
+                className="portrait"
+                sizes="(max-width: 900px) 60vw, 380px"
+              />
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="section-shell sprint-section">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -112,15 +113,32 @@ export default function PerformanceMarketingPage() {
       </Link>
 
       <section className="section-shell sprint-hero" data-reveal>
-        <p className="eyebrow">Performance Marketing</p>
-        <h1 className="sprint-headline">Performance Marketing That Generates Real Leads &amp; Sales</h1>
-        <p className="sprint-subhead">
-          We help businesses grow through Meta Ads, social media growth, email marketing, lead
-          generation, and conversion-focused marketing strategies designed to deliver measurable
-          results.
-        </p>
-        <div className="hero-actions">
-          <LeadCta label="Get a Free Strategy Call" context="Performance Marketing — Free Strategy Call" />
+        <div className="sprint-hero-grid">
+          <div className="sprint-hero-copy">
+          <p className="eyebrow">Performance Marketing</p>
+          <h1 className="sprint-headline">Performance Marketing That Generates Real Leads &amp; Sales</h1>
+          <p className="sprint-subhead">
+            We help businesses grow through Meta Ads, social media growth, email marketing, lead
+            generation, and conversion-focused marketing strategies designed to deliver measurable
+            results.
+          </p>
+          <div className="hero-actions">
+            <LeadCta label="Get a Free Strategy Call" context="Performance Marketing — Free Strategy Call" />
+          </div>
+          </div>
+          <div className="hero-visual">
+            <div className="portrait-halo" />
+            <div className="portrait-card">
+              <Image
+                src="/images/tsewang-bista-ai-marketing-banner.jpg"
+                alt="Tsewang Bista — AI powered digital marketing and AI web design"
+                width={1086}
+                height={1448}
+                className="portrait"
+                sizes="(max-width: 900px) 60vw, 380px"
+              />
+            </div>
+          </div>
         </div>
       </section>
 

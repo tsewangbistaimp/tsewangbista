@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowUpRight, CheckCircle2, Rocket } from "lucide-react";
 import ScrollEffects from "../../components/ScrollEffects";
 import LeadCta from "../../components/LeadCta";
@@ -43,13 +44,30 @@ export default function AiMarketingSystemsPage() {
       </Link>
 
       <section className="section-shell sprint-hero" data-reveal>
-        <p className="eyebrow">AI Marketing Systems</p>
-        <h1 className="sprint-headline">AI Marketing Systems</h1>
-        <p className="sprint-subhead">
-          AI-powered marketing solutions that automate lead generation, customer engagement, content
-          creation, and business growth. We build intelligent systems that help businesses attract,
-          nurture, and convert customers more efficiently.
-        </p>
+        <div className="sprint-hero-grid">
+          <div className="sprint-hero-copy">
+          <p className="eyebrow">AI Marketing Systems</p>
+          <h1 className="sprint-headline">AI Marketing Systems</h1>
+          <p className="sprint-subhead">
+            AI-powered marketing solutions that automate lead generation, customer engagement, content
+            creation, and business growth. We build intelligent systems that help businesses attract,
+            nurture, and convert customers more efficiently.
+          </p>
+          </div>
+          <div className="hero-visual">
+            <div className="portrait-halo" />
+            <div className="portrait-card">
+              <Image
+                src="/images/tsewang-bista-ai-marketing-banner.jpg"
+                alt="Tsewang Bista — AI powered digital marketing and AI web design"
+                width={1086}
+                height={1448}
+                className="portrait"
+                sizes="(max-width: 900px) 60vw, 380px"
+              />
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="section-shell sprint-section">

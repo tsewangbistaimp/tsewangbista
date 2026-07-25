@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -64,13 +65,30 @@ export default function UiUxDesignPage() {
       </Link>
 
       <section className="section-shell sprint-hero" data-reveal>
-        <p className="eyebrow">UI/UX Design</p>
-        <h1 className="sprint-headline">UI/UX Design</h1>
-        <p className="sprint-subhead">
-          Premium digital experiences designed around users, brands, and business goals. We create
-          modern interfaces, seamless user journeys, and responsive designs that improve usability,
-          engagement, and conversions.
-        </p>
+        <div className="sprint-hero-grid">
+          <div className="sprint-hero-copy">
+          <p className="eyebrow">UI/UX Design</p>
+          <h1 className="sprint-headline">UI/UX Design</h1>
+          <p className="sprint-subhead">
+            Premium digital experiences designed around users, brands, and business goals. We create
+            modern interfaces, seamless user journeys, and responsive designs that improve usability,
+            engagement, and conversions.
+          </p>
+          </div>
+          <div className="hero-visual">
+            <div className="portrait-halo" />
+            <div className="portrait-card">
+              <Image
+                src="/images/tsewang-bista-ai-marketing-banner.jpg"
+                alt="Tsewang Bista — AI powered digital marketing and AI web design"
+                width={1086}
+                height={1448}
+                className="portrait"
+                sizes="(max-width: 900px) 60vw, 380px"
+              />
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="section-shell sprint-section">

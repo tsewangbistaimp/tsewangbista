@@ -391,6 +391,16 @@ export default function Home() {
         <div className="services-panel glass-card" data-reveal>
           <p className="eyebrow">What I Do</p>
           <h2>Services</h2>
+          <div className="services-banner">
+            <Image
+              src="/images/tsewang-bista-ai-marketing-banner.jpg"
+              alt="AI powered digital marketing and AI web design services"
+              width={1086}
+              height={1448}
+              className="services-banner-image"
+              sizes="(max-width: 980px) 90vw, 420px"
+            />
+          </div>
           <div className="service-list">
             {services.map(({ icon: Icon, title, body, href }) => {
               const content = (

@@ -1348,3 +1348,47 @@ button:disabled {
     padding: 22px;
   }
 }
+
+.services-banner {
+  border-radius: 20px;
+  margin: 18px 0 22px;
+  overflow: hidden;
+}
+
+.services-banner-image {
+  display: block;
+  height: 220px;
+  object-fit: cover;
+  object-position: top center;
+  width: 100%;
+}
+
+@media (max-width: 680px) {
+  .services-banner-image {
+    height: 170px;
+  }
+}
+
+.sprint-hero-grid {
+  align-items: center;
+  display: grid;
+  gap: 40px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 380px);
+}
+
+.sprint-hero-grid .hero-visual {
+  min-height: 420px;
+}
+
+@media (max-width: 900px) {
+  .sprint-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sprint-hero-grid .hero-visual {
+    max-width: 360px;
+    margin: 0 auto;
+    min-height: 320px;
+    width: 100%;
+  }
+}
