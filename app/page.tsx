@@ -287,7 +287,7 @@ export default function Home() {
         </a>
       </header>
 
-      <section id="top" className="hero section-shell">
+      <section id="top" className="hero-banner-section section-shell">
         <div className="hero-copy" data-reveal>
           <p className="eyebrow">Hello, I&apos;m</p>
           <h1>
@@ -315,18 +315,26 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="hero-visual" data-reveal>
-          <div className="portrait-halo" />
-          <div className="portrait-card">
-            <Image
-              src="/images/tsewang-bista-ai-marketing-banner.jpg"
-              alt="Tsewang Bista — AI powered digital marketing and AI web design"
-              width={1086}
-              height={1448}
-              className="portrait"
-              sizes="(max-width: 680px) 100vw, (max-width: 980px) 80vw, 48vw"
-              priority
-            />
+        <div className="hero-banner-visual" data-reveal>
+          <Image
+            src="/images/tsewang-bista-hero-banner.jpg"
+            alt="Tsewang Bista — AI Digital Marketing Strategist and AI Web Design Expert"
+            width={1774}
+            height={887}
+            className="hero-banner-image"
+            sizes="(max-width: 980px) 100vw, 1140px"
+            priority
+          />
+        </div>
+
+        <div className="hero-banner-meta">
+          <div className="floating-stats glass-card">
+            {metrics.map(([value, label]) => (
+              <div key={label}>
+                <strong>{value}</strong>
+                <span>{label}</span>
+              </div>
+            ))}
           </div>
           <div className="floating-services glass-card">
             {heroServiceBadges.map(({ icon: Icon, label }) => (
@@ -334,14 +342,6 @@ export default function Home() {
                 <Icon size={14} />
                 {label}
               </span>
-            ))}
-          </div>
-          <div className="floating-stats glass-card">
-            {metrics.map(([value, label]) => (
-              <div key={label}>
-                <strong>{value}</strong>
-                <span>{label}</span>
-              </div>
             ))}
           </div>
         </div>

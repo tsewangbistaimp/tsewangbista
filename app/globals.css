@@ -185,11 +185,10 @@ nav a:hover,
   contain-intrinsic-size: 760px;
 }
 
-.hero {
-  align-items: center;
-  display: grid;
-  gap: 52px;
-  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+.hero-banner-section {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
   min-height: 100vh;
   padding-top: 132px;
 }
@@ -356,14 +355,11 @@ h3 {
 }
 
 .floating-services {
+  align-content: flex-start;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  left: 24px;
-  padding: 12px;
-  position: absolute;
-  right: 24px;
-  top: 24px;
+  gap: 10px;
+  padding: 20px;
 }
 
 .floating-services span {
@@ -385,14 +381,10 @@ h3 {
 }
 
 .floating-stats {
-  bottom: 34px;
   display: grid;
   gap: 18px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  left: 0;
-  padding: 18px;
-  position: absolute;
-  right: 26px;
+  padding: 20px;
 }
 
 .floating-stats strong {
@@ -873,7 +865,7 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .hero {
+  .hero-banner-section {
     padding-top: 124px;
   }
 
@@ -930,8 +922,8 @@ button:disabled {
     padding: 58px 16px;
   }
 
-  .hero {
-    gap: 28px;
+  .hero-banner-section {
+    gap: 26px;
     min-height: auto;
     padding-top: 118px;
   }
@@ -985,24 +977,18 @@ button:disabled {
 
   .floating-services {
     gap: 6px;
-    left: 10px;
-    padding: 8px;
-    right: 10px;
-    top: 10px;
+    padding: 14px;
   }
 
   .floating-services span {
-    font-size: 0.62rem;
-    padding: 5px 9px;
+    font-size: 0.68rem;
+    padding: 6px 10px;
   }
 
   .floating-stats {
-    bottom: 10px;
     gap: 8px;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    left: 10px;
-    padding: 10px;
-    right: 10px;
+    padding: 14px;
   }
 
   .floating-stats strong {
@@ -1390,5 +1376,35 @@ button:disabled {
     margin: 0 auto;
     min-height: 320px;
     width: 100%;
+  }
+}
+
+.hero-banner-visual {
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.hero-banner-image {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.hero-banner-meta {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 780px) {
+  .hero-banner-visual {
+    border-radius: 20px;
+  }
+
+  .hero-banner-meta {
+    gap: 14px;
+    grid-template-columns: 1fr;
   }
 }
