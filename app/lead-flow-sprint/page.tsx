@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ScrollEffects from "../components/ScrollEffects";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -110,14 +111,19 @@ const objections = [
 export default function LeadFlowSprintPage() {
   return (
     <main className="portfolio-shell sprint-page">
+      <ScrollEffects />
       <div className="cursor-glow" aria-hidden="true" />
 
       <Link href="/" className="back-link">
         <ArrowLeft size={16} />
         Back to portfolio
       </Link>
+      <Link href="/services/performance-marketing" className="back-link">
+        <ArrowUpRight size={16} />
+        Part of our Performance Marketing service
+      </Link>
 
-      <section className="section-shell sprint-hero">
+      <section className="section-shell sprint-hero" data-reveal>
         <p className="eyebrow">The 30-Day Lead Flow Sprint</p>
         <h1 className="sprint-headline">
           Get Real, Paying Leads in 30 Days — Or We Work Free Until You Do.
@@ -132,7 +138,7 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="glass-card sprint-card sprint-body">
+        <div className="glass-card sprint-card sprint-body" data-reveal>
           <p>You&apos;re posting. You&apos;re trying. You might even be running ads already.</p>
           <p>And yet... the phone isn&apos;t ringing the way it should.</p>
           <p>If that sounds familiar, you&apos;re not doing anything wrong. You&apos;re just missing one thing.</p>
@@ -140,11 +146,11 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <p className="eyebrow">Sound familiar?</p>
           <h2>Here&apos;s what usually happens.</h2>
         </div>
-        <div className="glass-card sprint-card sprint-body">
+        <div className="glass-card sprint-card sprint-body" data-reveal>
           <p>
             You post consistently. You put effort into your content, maybe even pay for a few boosted
             posts. People like it. Some people comment. And then... nothing. No bookings. No orders. No
@@ -166,11 +172,11 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <p className="eyebrow">The Solution</p>
           <h2>A complete lead system, installed in 30 days.</h2>
         </div>
-        <div className="glass-card sprint-card sprint-body">
+        <div className="glass-card sprint-card sprint-body" data-reveal>
           <p>The 30-Day Lead Flow Sprint isn&apos;t another &quot;we&apos;ll post some content for you&quot; package.</p>
           <p>
             It&apos;s a complete lead system — built and installed for your business in 30 days — that runs
@@ -185,11 +191,11 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <p className="eyebrow">How It Works</p>
           <h2>From onboarding call to inbox full of leads.</h2>
         </div>
-        <div className="service-list">
+        <div className="service-list" data-reveal>
           {steps.map(({ icon: Icon, title, body }) => (
             <article key={title}>
               <Icon size={20} />
@@ -204,11 +210,11 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <p className="eyebrow">Benefits</p>
           <h2>What changes once the system is running.</h2>
         </div>
-        <div className="experience-list">
+        <div className="experience-list" data-reveal>
           {benefits.map((item) => (
             <div key={item}>
               <CheckCircle2 size={20} />
@@ -219,11 +225,11 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <p className="eyebrow">What&apos;s Included</p>
           <h2>Everything set up and running for you.</h2>
         </div>
-        <div className="experience-list">
+        <div className="experience-list" data-reveal>
           {included.map((item) => (
             <div key={item}>
               <CheckCircle2 size={20} />
@@ -237,13 +243,13 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <p className="eyebrow">Bonuses</p>
           <h2>Included free with every Sprint.</h2>
         </div>
         <div className="venture-grid">
           {bonuses.map(({ icon: Icon, title, body }) => (
-            <article className="glass-card venture-card" key={title}>
+            <article className="glass-card venture-card" key={title} data-reveal>
               <Icon size={28} />
               <span>Bonus</span>
               <h3>{title}</h3>
@@ -254,11 +260,11 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <p className="eyebrow">Why Business Owners Trust This</p>
           <h2>Leads, not likes.</h2>
         </div>
-        <div className="glass-card sprint-card sprint-body">
+        <div className="glass-card sprint-card sprint-body" data-reveal>
           <p>Every part of this system is built around one idea: leads, not likes.</p>
           <p>
             We don&apos;t measure success by how many people saw your post. We measure it by how many
@@ -266,18 +272,18 @@ export default function LeadFlowSprintPage() {
           </p>
           <p>That&apos;s the only number that matters to your business — and it&apos;s the only number we optimize for.</p>
         </div>
-        <p className="testimonial-placeholder">
+        <p className="testimonial-placeholder" data-reveal>
           Client result coming soon — e.g. &quot;Helped [Business Name] go from 3 to 22 leads/month in
           their first Sprint.&quot;
         </p>
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <p className="eyebrow">Objection Handling</p>
           <h2>The questions every owner asks first.</h2>
         </div>
-        <div className="glass-card sprint-card faq-list">
+        <div className="glass-card sprint-card faq-list" data-reveal>
           {objections.map(({ q, a }) => (
             <div className="faq-item" key={q}>
               <h3>{q}</h3>
@@ -288,7 +294,7 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="glass-card sprint-card guarantee-box">
+        <div className="glass-card sprint-card guarantee-box" data-reveal>
           <p className="eyebrow">Risk Reversal / Guarantee</p>
           <h2>We work free until you get leads.</h2>
           <p className="sprint-subhead">
@@ -303,7 +309,7 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section">
-        <div className="glass-card sprint-card urgency-box">
+        <div className="glass-card sprint-card urgency-box" data-reveal>
           <p className="eyebrow">Urgency &amp; Scarcity</p>
           <h2>Limited Sprint spots each month.</h2>
           <p className="sprint-muted">
@@ -315,10 +321,10 @@ export default function LeadFlowSprintPage() {
       </section>
 
       <section className="section-shell sprint-section final-cta">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <h2>You don&apos;t need more content. You need leads.</h2>
         </div>
-        <div className="glass-card sprint-card sprint-body">
+        <div className="glass-card sprint-card sprint-body" data-reveal>
           <p>You don&apos;t need more content. You don&apos;t need more guessing.</p>
           <p>You need a system that brings leads to you — and 30 days to prove it works.</p>
         </div>

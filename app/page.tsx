@@ -68,7 +68,8 @@ const services = [
   {
     icon: Target,
     title: "Performance Marketing",
-    body: "Meta ads, social growth, email marketing, customer acquisition, and conversion-focused strategy."
+    body: "Meta ads, social growth, email marketing, customer acquisition, and conversion-focused strategy.",
+    href: "/services/performance-marketing"
   },
   {
     icon: Layers3,
@@ -370,16 +371,26 @@ export default function Home() {
           <p className="eyebrow">What I Do</p>
           <h2>Services</h2>
           <div className="service-list">
-            {services.map(({ icon: Icon, title, body }) => (
-              <article key={title}>
-                <Icon size={20} />
-                <div>
-                  <h3>{title}</h3>
-                  <p>{body}</p>
-                </div>
-                <ArrowUpRight size={18} />
-              </article>
-            ))}
+            {services.map(({ icon: Icon, title, body, href }) => {
+              const content = (
+                <>
+                  <Icon size={20} />
+                  <div>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </div>
+                  <ArrowUpRight size={18} />
+                </>
+              );
+
+              return href ? (
+                <Link href={href} key={title}>
+                  {content}
+                </Link>
+              ) : (
+                <article key={title}>{content}</article>
+              );
+            })}
           </div>
         </div>
         <div className="portfolio-panel glass-card" data-reveal>

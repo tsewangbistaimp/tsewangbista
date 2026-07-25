@@ -432,7 +432,8 @@ a.portfolio-card {
 .venture-card:hover,
 .testimonial-card:hover,
 .portfolio-card:hover,
-.service-list article:hover {
+.service-list article:hover,
+.service-list a:hover {
   border-color: var(--line-strong);
   box-shadow: 0 28px 86px rgba(255, 138, 0, 0.12);
   transform: translateY(-5px);
@@ -499,7 +500,8 @@ a.portfolio-card {
   margin-top: 20px;
 }
 
-.service-list article {
+.service-list article,
+.service-list a {
   align-items: center;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid var(--line);
@@ -991,12 +993,14 @@ button:disabled {
     padding: 18px;
   }
 
-  .service-list article {
+  .service-list article,
+  .service-list a {
     grid-template-columns: auto 1fr;
     padding: 14px;
   }
 
-  .service-list article > svg:last-child {
+  .service-list article > svg:last-child,
+  .service-list a > svg:last-child {
     display: none;
   }
 
@@ -1159,4 +1163,30 @@ button:disabled {
   color: var(--muted);
   line-height: 1.7;
   margin-top: 12px;
+}
+
+.offer-card h3 {
+  margin: 18px 0 14px;
+}
+
+.offer-list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.offer-list li {
+  align-items: flex-start;
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.offer-list li svg {
+  color: var(--gold);
+  flex-shrink: 0;
+  margin-top: 3px;
 }
