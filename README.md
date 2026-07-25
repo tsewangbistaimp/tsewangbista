@@ -29,7 +29,7 @@ npm audit --audit-level=moderate
 ## Order System
 
 The Order Inquiry form submits directly from the browser to a Formspree
-endpoint, which emails the submission to `tsewangbistaimp@gmail.com`.
+endpoint, which emails the submission to `contact@tsewangbista.com`.
 
 Required environment variable (see `.env.example`):
 
@@ -39,7 +39,7 @@ Required environment variable (see `.env.example`):
 Setup:
 
 1. Create a free account at [formspree.io](https://formspree.io).
-2. Create a new form with `tsewangbistaimp@gmail.com` as the recipient.
+2. Create a new form with `contact@tsewangbista.com` as the recipient.
 3. Copy the form's endpoint URL into `NEXT_PUBLIC_FORMSPREE_ENDPOINT`.
 4. Never commit `.env.local` or real secrets.
 

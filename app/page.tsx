@@ -225,7 +225,7 @@ export default function Home() {
       }
 
       setOrderStatus("success");
-      setOrderMessage("Order received. It has been sent to tsewangbistaimp@gmail.com.");
+      setOrderMessage("Order received. It has been sent to contact@tsewangbista.com.");
       form.reset();
     } catch (error) {
       setOrderStatus("error");
@@ -492,7 +492,7 @@ export default function Home() {
           <p className="eyebrow">Order Inquiry</p>
           <h2>Place a shoe, apple, or business inquiry order.</h2>
           <p>
-            Orders are sent straight to tsewangbistaimp@gmail.com so I can follow up quickly.
+            Orders are sent straight to contact@tsewangbista.com so I can follow up quickly.
           </p>
         </div>
         <form className="glass-card order-form" onSubmit={handleOrderSubmit} data-reveal>
@@ -557,9 +557,9 @@ export default function Home() {
           </p>
         </div>
         <div className="contact-card glass-card" data-reveal>
-          <a href="mailto:tsewangbistaimp@gmail.com">
+          <a href="mailto:contact@tsewangbista.com">
             <Mail size={18} />
-            tsewangbistaimp@gmail.com
+            contact@tsewangbista.com
           </a>
           <a href="https://wa.me/9779862568506" target="_blank" rel="noreferrer">
             <MessageCircle size={18} />
