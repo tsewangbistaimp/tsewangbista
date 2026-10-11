@@ -1,0 +1,79 @@
+import { randomUUID } from "node:crypto";
+import { cookies } from "next/headers";
+import { buildAdvice } from "@/lib/q/advice";
+import { cfg, cookieValid, hasDb, isOpen } from "@/lib/q/config";
+import { sendEmail } from "@/lib/q/email";
+import { json, limited, notFound, sameOrigin } from "@/lib/q/guard";
+import { countAnswered, normaliseAnswers, submissionSchema } from "@/lib/q/schema";
+import { findByKey, findInvite, inviteUsable, markInviteUsed, saveSubmission, setEmailStatus } from "@/lib/q/store";
+
+export const runtime = "nodejs";
+export const maxDuration = 30;
+
+// Used for duplicate protection when no database is configured (per server instance).
+const seen = new Set<string>();
+
+export async function POST(req: Request) {
+  if (!isOpen()) return notFound();
+  if (!sameOrigin(req)) return json({ error: "Not allowed." }, 403);
+  if (limited(req, "submit", 12, 60 * 60_000)) return json({ error: "Too many attempts. Please wait a little and try again." }, 429);
+
+  const raw = await req.text();
+  if (raw.length > 600_000) return json({ error: "That is too much text to send at once." }, 413);
+
+  let body: unknown;
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    return json({ error: "Something went wrong reading your answers." }, 400);
+  }
+  const parsed = submissionSchema.safeParse(body);
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    return json({ error: first?.message ?? "Please check your answers and try again.", field: first?.path.join(".") }, 400);
+  }
+  const data = parsed.data;
+  if (data.website) return json({ ok: true, id: randomUUID(), tips: [], source: "default" }); // honeypot: pretend success
+
+  // Access control
+  let inviteId: string | null = null;
+  let inviteLabel: string | undefined;
+  let singleUse = false;
+  if (cfg.access() === "token" && hasDb()) {
+    const inv = await findInvite(data.inviteToken ?? "");
+    if (!inviteUsable(inv)) return notFound();
+    inviteId = inv.id;
+    inviteLabel = inv.label;
+    singleUse = inv.single_use;
+  } else if (cfg.access() === "code") {
+    const jar = await cookies();
+    if (!cookieValid(jar.get("q_ok")?.value, "ok")) return notFound();
+  }
+
+  const answers = normaliseAnswers(data.answers);
+  const { tips, source } = await buildAdvice(data.profile, answers);
+
+  // Idempotency: a double-click or retry returns the first result instead of sending twice.
+  const existing = await findByKey(data.idempotencyKey);
+  if (existing || seen.has(data.idempotencyKey)) return json({ ok: true, id: existing?.id ?? data.idempotencyKey, duplicate: true, tips, source });
+  seen.add(data.idempotencyKey);
+
+  const id = randomUUID();
+  const submittedAt = new Date();
+  const durationSec = data.startedAt ? Math.max(0, Math.round((submittedAt.getTime() - Date.parse(data.startedAt)) / 1000)) : undefined;
+
+  const saved = await saveSubmission({
+    id, idempotency_key: data.idempotencyKey, name: data.profile.name, field: data.profile.field, email: data.profile.email,
+    invite_id: inviteId, payload: { profile: data.profile, answers, startedAt: data.startedAt, durationSec }
+  });
+  const emailed = await sendEmail({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel });
+  if (saved) await setEmailStatus(id, emailed ? "sent" : "failed");
+  if (saved && singleUse && inviteId) await markInviteUsed(inviteId);
+
+  if (!saved && !emailed) {
+    seen.delete(data.idempotencyKey);
+    console.error("[questionnaire] submission could not be saved or emailed");
+    return json({ error: "We could not receive your answers right now. Your answers are still saved on this device - please try again in a moment." }, 502);
+  }
+  return json({ ok: true, id, answered: countAnswered(answers), tips, source });
+}
