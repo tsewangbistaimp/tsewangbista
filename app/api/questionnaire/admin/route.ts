@@ -51,8 +51,9 @@ export async function POST(req: Request) {
     if (!isOpen()) return json({ error: "Questionnaire is switched off." }, 400);
     const labels = String(b.labels ?? "").split("\n").map((l) => l.trim().slice(0, 80)).filter(Boolean).slice(0, 50);
     if (!labels.length) return json({ error: "Enter at least one name." }, 400);
-    const rows = await createInvites(labels, b.singleUse === true, inviteToken);
-    return json({ ok: true, count: rows.length });
+    const made = await createInvites(labels, b.singleUse === true, inviteToken);
+    if (made.error || !made.rows.length) return json({ error: made.error ?? "No links were created." }, 502);
+    return json({ ok: true, count: made.rows.length });
   }
   return json({ error: "Unknown action." }, 400);
 }

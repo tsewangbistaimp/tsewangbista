@@ -14,7 +14,8 @@ async function db(path: string, init: RequestInit = {}): Promise<Response> {
     cache: "no-store",
     headers: {
       apikey: cfg.supabaseKey(),
-      Authorization: `Bearer ${cfg.supabaseKey()}`,
+      // New-style keys (sb_secret_...) are not JWTs and must only go in the apikey header.
+      ...(cfg.supabaseKey().startsWith("eyJ") ? { Authorization: `Bearer ${cfg.supabaseKey()}` } : {}),
       "Content-Type": "application/json",
       ...(init.headers ?? {})
     }
@@ -77,10 +78,19 @@ export async function listInvites(): Promise<InviteRow[]> {
   return r.ok ? ((await r.json()) as InviteRow[]) : [];
 }
 
-export async function createInvites(labels: string[], singleUse: boolean, tokenFn: () => string): Promise<InviteRow[]> {
+export async function createInvites(
+  labels: string[],
+  singleUse: boolean,
+  tokenFn: () => string
+): Promise<{ rows: InviteRow[]; error?: string }> {
   const rows = labels.map((label) => ({ label, token: tokenFn(), single_use: singleUse }));
-  const r = await db("q_invites", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(rows) });
-  return r.ok ? ((await r.json()) as InviteRow[]) : [];
+  try {
+    const r = await db("q_invites", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(rows) });
+    if (!r.ok) return { rows: [], error: `Database said ${r.status}: ${(await r.text()).slice(0, 220)}` };
+    return { rows: (await r.json()) as InviteRow[] };
+  } catch {
+    return { rows: [], error: "Could not reach the database. Check SUPABASE_URL (it must look like https://xxxx.supabase.co)." };
+  }
 }
 
 export async function revokeInvite(id: string, revoked: boolean): Promise<void> {
