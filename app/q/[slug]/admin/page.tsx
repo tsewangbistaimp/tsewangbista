@@ -20,7 +20,7 @@ export default async function AdminPage({ params, searchParams }: { params: Prom
   const needle = (sp.q ?? "").toLowerCase();
   const rows = subs
     .filter((s) => !needle || `${s.name} ${s.field}`.toLowerCase().includes(needle))
-    .map((s) => ({ id: s.id, name: s.name, field: s.field, email: s.email, at: s.created_at, status: s.email_status, answered: Object.keys(s.payload.answers).filter((k) => k.startsWith("Q")).length, answers: s.payload.answers }));
+    .map((s) => ({ id: s.id, name: s.name, field: s.field, email: s.email, at: s.created_at, status: s.email_status, answered: Object.keys(s.payload.answers).length, answers: s.payload.answers }));
   const inviteRows = invites.map((i) => ({
     id: i.id, label: i.label, revoked: i.revoked, singleUse: i.single_use, used: Boolean(i.used_at),
     link: `${origin}/q/${slug}?t=${i.token}`

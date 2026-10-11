@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { checkAccess } from "@/lib/q/access";
-import { buildAdvice } from "@/lib/q/advice";
+import { advice } from "@/lib/q/advice";
 import { isOpen } from "@/lib/q/config";
 import { sendEmail } from "@/lib/q/email";
 import { json, limited, notFound, sameOrigin } from "@/lib/q/guard";
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     return json({ error: first?.message ?? "Please check your answers and try again.", field: first?.path.join(".") }, 400);
   }
   const data = parsed.data;
-  if (data.website) return json({ ok: true, id: randomUUID(), tips: [], source: "default" }); // honeypot: pretend success
+  if (data.website) return json({ ok: true, id: randomUUID(), tips: [] }); // honeypot: pretend success
 
   // Access control
   const access = await checkAccess(data.inviteToken);
@@ -41,11 +41,11 @@ export async function POST(req: Request) {
   const { inviteId, inviteLabel, singleUse } = access;
 
   const answers = normaliseAnswers(data.answers);
-  const { tips, source } = await buildAdvice(data.profile, answers);
+  const tips = advice();
 
   // Idempotency: a double-click or retry returns the first result instead of sending twice.
   const existing = await findByKey(data.idempotencyKey);
-  if (existing || seen.has(data.idempotencyKey)) return json({ ok: true, id: existing?.id ?? data.idempotencyKey, duplicate: true, tips, source });
+  if (existing || seen.has(data.idempotencyKey)) return json({ ok: true, id: existing?.id ?? data.idempotencyKey, duplicate: true, tips });
   seen.add(data.idempotencyKey);
 
   const id = randomUUID();
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     id, idempotency_key: data.idempotencyKey, name: data.profile.name, field: data.profile.field, email: data.profile.email,
     invite_id: inviteId, payload: { profile: data.profile, answers, startedAt: data.startedAt, durationSec }
   });
-  const mail = await sendEmail({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel, draftConfirmed: data.draftConfirmed });
+  const mail = await sendEmail({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel });
   const emailed = mail.ok;
   if (saved) await setEmailStatus(id, emailed ? "sent" : `failed - ${mail.detail}`);
   if (saved && singleUse && inviteId) await markInviteUsed(inviteId);
@@ -66,5 +66,5 @@ export async function POST(req: Request) {
     console.error("[questionnaire] submission could not be saved or emailed");
     return json({ error: "We could not receive your answers right now. Your answers are still saved on this device - please try again in a moment." }, 502);
   }
-  return json({ ok: true, id, answered: countAnswered(answers), tips, source });
+  return json({ ok: true, id, answered: countAnswered(answers), tips });
 }

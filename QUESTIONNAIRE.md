@@ -1,12 +1,12 @@
 # Private research questionnaire
 
-A hidden, invite-only page at `/q/<QUESTIONNAIRE_SLUG>`. Nothing links to it, it is not in any sitemap or `robots.txt`, and every wrong URL returns the normal 404.
+A hidden, invite-only 15-question (5-10 minute) page at `/q/<QUESTIONNAIRE_SLUG>`. Nothing links to it, it is not in any sitemap or `robots.txt`, and every wrong URL returns the normal 404.
 
 ## Files (all new; only `next.config.mjs`, `.env.example` and `package.json` (zod) were edited)
 
 - `app/q/[slug]/` page, wizard UI, admin page. `app/q/q.css` styles (scoped to `.qx`).
 - `app/api/questionnaire/submit|code|admin/route.ts` server endpoints.
-- `lib/q/` question bank, shared Zod schema, config, Supabase store, email builder, advice.
+- `lib/q/` question list, shared Zod schema, config, Supabase store, email builder, advice.
 - `supabase.sql` database tables.
 
 ## Setup (once)
@@ -18,7 +18,6 @@ A hidden, invite-only page at `/q/<QUESTIONNAIRE_SLUG>`. Nothing links to it, it
    - `QUESTIONNAIRE_ENABLED=true`, `QUESTIONNAIRE_ACCESS=token`
    - `QUESTIONNAIRE_SESSION_SECRET` (any long random string), `QUESTIONNAIRE_ADMIN_PASSWORD`
    - `RECIPIENT_EMAIL`, `RESEND_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-   - optional `ANTHROPIC_API_KEY` for personalised advice (otherwise fixed tips are shown)
 4. Redeploy.
 
 ## Using it
@@ -40,7 +39,7 @@ A hidden, invite-only page at `/q/<QUESTIONNAIRE_SLUG>`. Nothing links to it, it
 
 ## Notes and assumptions
 
-- Defaults chosen: Resend, Supabase, personal invite tokens, AI-written tips with fixed-tips fallback.
+- Defaults chosen: Resend, Supabase, personal invite tokens. No AI is used anywhere; the thank-you advice is fixed text.
 - The rate limiter is in memory per server instance (enough for ~10 invitees).
 - Cloudflare Turnstile was not added because it needs a third-party script on the page; the honeypot, rate limit and invite tokens cover abuse.
 - Drafts are saved in the browser (localStorage), not on the server.

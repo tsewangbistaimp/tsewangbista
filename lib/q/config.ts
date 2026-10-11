@@ -25,8 +25,6 @@ export const cfg = {
     }
   },
   supabaseKey: () => env("SUPABASE_SERVICE_ROLE_KEY"),
-  anthropicKey: () => env("ANTHROPIC_API_KEY"),
-  anthropicModel: () => env("ANTHROPIC_MODEL") || "claude-sonnet-5-5",
   siteUrl: () => env("NEXT_PUBLIC_SITE_URL")
 };
 

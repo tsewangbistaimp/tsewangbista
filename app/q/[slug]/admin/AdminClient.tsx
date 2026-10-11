@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ALL_QUESTIONS } from "@/lib/q/questions";
 import { SHORT_QUESTIONS } from "@/lib/q/short";
 
 type Row = { id: string; name: string; field: string; email: string; at: string; status: string; answered: number; answers: Record<string, { answer: string; choice?: string; source?: string }> };
@@ -78,10 +77,10 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
       {open && (
         <section className="qx-card" aria-label="Submission details">
           <h2 className="qx-h2">{open.name} &middot; {open.field}</h2>
-          {[...SHORT_QUESTIONS, ...ALL_QUESTIONS].map((q) => (
+          {SHORT_QUESTIONS.map((q) => (
             <div key={q.id} className="qx-ans">
               <div className="qx-ans-q"><b>{q.id}</b> {q.text}</div>
-              {open.answers[q.id] ? <p className="qx-ans-a">{open.answers[q.id].source && open.answers[q.id].source !== "own" && <b>[{open.answers[q.id].source === "ai" ? "AI draft, confirmed" : "AI draft, edited"}] </b>}{open.answers[q.id].choice && <em>[{open.answers[q.id].choice}] </em>}{open.answers[q.id].answer}</p> : <p className="qx-muted">Skipped</p>}
+              {open.answers[q.id] ? <p className="qx-ans-a">{open.answers[q.id].choice && <em>[{open.answers[q.id].choice}] </em>}{open.answers[q.id].answer}</p> : <p className="qx-muted">Skipped</p>}
             </div>
           ))}
         </section>

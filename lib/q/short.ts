@@ -1,5 +1,4 @@
-// The short (5-10 minute) questionnaire. Its answers feed an AI draft of the 57 detailed answers,
-// which the respondent then reads, edits and confirms before submitting.
+// The short (5-10 minute) questionnaire: 15 questions in 5 parts.
 export type ShortQuestion = {
   id: string;
   text: string;
@@ -78,6 +77,3 @@ export const SHORT_IDS = SHORT_QUESTIONS.map((x) => x.id);
 export const TOTAL_SHORT = SHORT_QUESTIONS.length;
 /** Short questions shown at the top of the email so the key answers can be scanned fast. */
 export const SHORT_QUICK_IDS = ["Q6", "Q10", "Q11", "Q14"];
-
-/** Quick-choice answers in the short form that directly fill the matching detailed question. */
-export const CHOICE_MAP: Record<string, string> = { A6: "Q2", B7: "Q4", C9: "Q8", C10: "Q9", D6: "Q12", D7: "Q13", F4: "Q15" };

@@ -1,33 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ALL_QUESTIONS, STEPS, TOTAL_QUESTIONS } from "@/lib/q/questions";
-import { CHOICE_MAP, SHORT_QUESTIONS, SHORT_QUICK_IDS, SHORT_STEPS, TOTAL_SHORT, type ShortQuestion } from "@/lib/q/short";
+import { SHORT_QUESTIONS, SHORT_QUICK_IDS, SHORT_STEPS, TOTAL_SHORT, type ShortQuestion } from "@/lib/q/short";
 import { MAX_ANSWER_CHARS } from "@/lib/q/schema";
 
 type Ans = { answer: string; choice?: string };
 type Answers = Record<string, Ans>;
-type Detail = { answer: string; source: "own" | "ai" | "edited" };
-type Details = Record<string, Detail>;
 type Profile = { name: string; field: string; email: string; date: string; consent: boolean };
-type Draft = { v: 2; profile: Profile; answers: Answers; details: Details; orig: Record<string, string>; hash: string; startedAt: string; key: string; screen: string };
-type Result = { tips: string[]; source: string; profile: Profile; answers: Answers; details: Details };
+type Draft = { v: 3; profile: Profile; answers: Answers; startedAt: string; key: string; screen: string };
+type Result = { tips: string[]; profile: Profile; answers: Answers };
 
 const today = () => new Date().toISOString().slice(0, 10);
 const uuid = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (Number(c) ^ (Math.random() * 16) >> (Number(c) / 4)).toString(16)));
 const blankProfile = (): Profile => ({ name: "", field: "", email: "", date: today(), consent: false });
 const hasContent = (a?: Ans) => Boolean(a && (a.answer.trim() || a.choice));
-const hashOf = (a: Answers) => JSON.stringify(SHORT_QUESTIONS.map((q) => [a[q.id]?.answer ?? "", a[q.id]?.choice ?? ""]));
 
 export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: string; inviteToken: string; gate: "open" | "code" }) {
-  const storeKey = `qx2:${slug.slice(0, 10)}:${inviteToken.slice(0, 6)}`;
+  const storeKey = `qx3:${slug.slice(0, 10)}:${inviteToken.slice(0, 6)}`;
   const [unlocked, setUnlocked] = useState(gate === "open");
   const [screen, setScreen] = useState("welcome");
   const [profile, setProfile] = useState<Profile>(blankProfile);
   const [answers, setAnswers] = useState<Answers>({});
-  const [details, setDetails] = useState<Details>({});
-  const [orig, setOrig] = useState<Record<string, string>>({});
-  const [hash, setHash] = useState("");
   const [startedAt, setStartedAt] = useState("");
   const [key, setKey] = useState("");
   const [hasDraft, setHasDraft] = useState(false);
@@ -37,8 +30,6 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [draftNote, setDraftNote] = useState("");
-  const [confirmed, setConfirmed] = useState(false);
   const [toast, setToast] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const lock = useRef(false);
@@ -52,12 +43,9 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
       const raw = localStorage.getItem(storeKey);
       if (raw) {
         const d = JSON.parse(raw) as Draft;
-        if (d.v === 2) {
+        if (d.v === 3) {
           setProfile({ ...blankProfile(), ...d.profile });
           setAnswers(d.answers ?? {});
-          setDetails(d.details ?? {});
-          setOrig(d.orig ?? {});
-          setHash(d.hash ?? "");
           setStartedAt(d.startedAt);
           setKey(d.key);
           setHasDraft(Boolean(Object.keys(d.answers ?? {}).length || d.profile?.name));
@@ -76,14 +64,14 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
 
   const persist = useCallback(() => {
     try {
-      const d: Draft = { v: 2, profile, answers, details, orig, hash, startedAt, key, screen: screen === "drafting" ? "confirm" : screen };
+      const d: Draft = { v: 3, profile, answers, startedAt, key, screen };
       localStorage.setItem(storeKey, JSON.stringify(d));
       setSaved("saved");
       setDirty(false);
     } catch {
       setSaved("idle");
     }
-  }, [profile, answers, details, orig, hash, startedAt, key, screen, storeKey]);
+  }, [profile, answers, startedAt, key, screen, storeKey]);
 
   // Autosave a moment after the last change (the flags mirror that external save state).
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -93,7 +81,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
     setSaved("saving");
     const t = setTimeout(persist, 1200);
     return () => clearTimeout(t);
-  }, [ready, profile, answers, details, screen, persist]);
+  }, [ready, profile, answers, screen, persist]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
@@ -116,7 +104,6 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
   }, [toast]);
 
   const answeredCount = useMemo(() => SHORT_QUESTIONS.filter((q) => hasContent(answers[q.id])).length, [answers]);
-  const aiLeft = useMemo(() => Object.values(details).filter((d) => d.source !== "own" && d.answer.trim()).length, [details]);
   const setAns = (id: string, patch: Partial<Ans>) => setAnswers((a) => ({ ...a, [id]: { ...(a[id] ?? { answer: "" }), ...patch } }));
 
   function validateProfile(): boolean {
@@ -130,49 +117,9 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
     return Object.keys(e).length === 0;
   }
 
-  // Ask the server to draft the 57 detailed answers from the short ones (skipped if nothing changed).
-  async function buildDraft() {
-    if (!validateProfile()) { setScreen("about"); return; }
-    const h = hashOf(answers);
-    if (h === hash && Object.keys(details).length) { setScreen("confirm"); return; }
-    setScreen("drafting");
-    setDraftNote("");
-    let drafts: Record<string, string> | null = null;
-    try {
-      const r = await fetch("/api/questionnaire/draft", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inviteToken: inviteToken || undefined, field: profile.field.trim(), answers: Object.fromEntries(Object.entries(answers).filter(([, v]) => hasContent(v))) })
-      });
-      if (r.ok) drafts = ((await r.json()) as { drafts: Record<string, string> | null }).drafts;
-    } catch {
-      /* fall through: the respondent can still submit the short answers */
-    }
-    const next: Details = {};
-    const o: Record<string, string> = {};
-    if (drafts) for (const [id, text] of Object.entries(drafts)) { next[id] = { answer: text, source: "ai" }; o[id] = text; }
-    setDetails(next);
-    setOrig(o);
-    setHash(h);
-    setConfirmed(false);
-    if (!drafts) setDraftNote("The detailed draft could not be prepared right now. That is fine: you can submit your short answers as they are, or write extra detail yourself below.");
-    setScreen("confirm");
-  }
-
-  function editDetail(id: string, text: string) {
-    setDetails((d) => {
-      const o = orig[id];
-      const source: Detail["source"] = o === undefined ? "own" : text === o ? "ai" : "edited";
-      const copy = { ...d };
-      if (!text.trim() && o === undefined) delete copy[id]; else copy[id] = { answer: text, source };
-      return copy;
-    });
-    setConfirmed(false);
-  }
-
   async function submit() {
     if (lock.current) return;
     if (!validateProfile()) { setScreen("about"); return; }
-    if (aiLeft > 0 && !confirmed) { setSubmitError("Please tick the confirmation box above the Submit button."); return; }
     lock.current = true;
     setBusy(true);
     setSubmitError("");
@@ -182,23 +129,16 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
       return;
     }
     try {
-      const all: Record<string, Ans & { source: string }> = {};
-      for (const q of SHORT_QUESTIONS) if (hasContent(answers[q.id])) all[q.id] = { ...answers[q.id], source: "own" };
-      for (const q of ALL_QUESTIONS) {
-        const d = details[q.id];
-        const mapped = CHOICE_MAP[q.id] ? answers[CHOICE_MAP[q.id]]?.choice : undefined;
-        if ((d && d.answer.trim()) || mapped) all[q.id] = { answer: d?.answer.trim() ?? "", ...(mapped ? { choice: mapped } : {}), source: d && d.answer.trim() ? d.source : "own" };
-      }
       const payload = {
-        idempotencyKey: key, startedAt, inviteToken: inviteToken || undefined, website: "", draftConfirmed: aiLeft > 0 ? confirmed : undefined,
+        idempotencyKey: key, startedAt, inviteToken: inviteToken || undefined, website: "",
         profile: { ...profile, name: profile.name.trim(), field: profile.field.trim(), email: profile.email.trim() },
-        answers: all
+        answers: Object.fromEntries(Object.entries(answers).filter(([, v]) => hasContent(v)))
       };
       const r = await fetch("/api/questionnaire/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const data = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string; tips?: string[]; source?: string };
+      const data = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string; tips?: string[] };
       if (!r.ok || !data.ok) throw new Error(data.error ?? "Something went wrong. Please try again.");
       try { localStorage.removeItem(storeKey); } catch { /* ignore */ }
-      setResult({ tips: data.tips ?? [], source: data.source ?? "default", profile, answers, details });
+      setResult({ tips: data.tips ?? [], profile, answers });
       setScreen("done");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -213,7 +153,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
   if (!unlocked) return <CodeGate slug={slug} onDone={() => setUnlocked(true)} />;
 
   const stepIndex = /^s\d$/.test(screen) ? Number(screen.slice(1)) : -1;
-  const inFlow = stepIndex >= 0 || screen === "confirm" || screen === "about" || screen === "drafting";
+  const inFlow = stepIndex >= 0 || screen === "review" || screen === "about";
   const pct = Math.round((answeredCount / TOTAL_SHORT) * 100);
   const lastStep = SHORT_STEPS.length - 1;
 
@@ -228,7 +168,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
           <div className="qx-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Questions answered">
             <div className="qx-progress-bar" style={{ width: `${Math.max(pct, 3)}%` }} />
             <div className="qx-progress-text">
-              {screen === "confirm" || screen === "drafting" ? "Last step: check your detailed answers" : screen === "about" ? "About you" : `Step ${stepIndex + 1} of ${SHORT_STEPS.length}`} &middot; {answeredCount} of {TOTAL_SHORT} answered
+              {screen === "review" ? "Review" : screen === "about" ? "About you" : `Step ${stepIndex + 1} of ${SHORT_STEPS.length}`} &middot; {answeredCount} of {TOTAL_SHORT} answered
             </div>
           </div>
         )}
@@ -264,7 +204,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
               {errors.consent && <p className="qx-error" role="alert">{errors.consent}</p>}
             </div>
             <div className="qx-note">
-              <b>Privacy.</b> I collect your name, field, optional email and your answers, only to learn about real problems in different fields. Only I (Tsewang Bista) can see them, and I will keep them for this research project. At the end, an AI service reads your short answers to draft the longer answers and tips for you; you check and change everything before it is sent, and the text is not used for anything else. To remove your answers, just email me. Please do not write real names or private details of patients, clients, customers or colleagues, and no confidential company information.
+              <b>Privacy.</b> I collect your name, field, optional email and your answers, only to learn about real problems in different fields. Only I (Tsewang Bista) can see them, and I will keep them for this research project. To remove your answers, just email me. Please do not write real names or private details of patients, clients, customers or colleagues, and no confidential company information.
             </div>
             <Nav onBack={() => setScreen("welcome")} onNext={() => { if (validateProfile()) setScreen("s0"); }} nextLabel="Start the questions" />
           </section>
@@ -283,62 +223,38 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
               <div className="qx-later">
                 <button className="qx-link" onClick={() => { persist(); setToast("Saved on this device. Open the same link on this device later to continue."); }}>Save and finish later</button>
               </div>
-              <Nav onBack={() => setScreen(stepIndex === 0 ? "about" : `s${stepIndex - 1}`)} onNext={() => (stepIndex === lastStep ? buildDraft() : setScreen(`s${stepIndex + 1}`))}
-                nextLabel={stepIndex === lastStep ? "Finish: build my full answers" : `Next: ${SHORT_STEPS[stepIndex + 1].title}`} />
+              <Nav onBack={() => setScreen(stepIndex === 0 ? "about" : `s${stepIndex - 1}`)} onNext={() => setScreen(stepIndex === lastStep ? "review" : `s${stepIndex + 1}`)}
+                nextLabel={stepIndex === lastStep ? "Review my answers" : `Next: ${SHORT_STEPS[stepIndex + 1].title}`} />
             </section>
           );
         })()}
 
-        {screen === "drafting" && (
-          <section aria-live="polite" className="qx-center">
-            <div className="qx-spin" aria-hidden="true" />
-            <h1 className="qx-h1">Preparing your detailed answers...</h1>
-            <p className="qx-lead">I am turning your short answers into fuller written answers. This takes about 20-30 seconds. You will check them before anything is sent.</p>
-          </section>
-        )}
-
-        {screen === "confirm" && (
+        {screen === "review" && (
           <section aria-labelledby="rev-h">
-            <h1 id="rev-h" className="qx-h1">Check your detailed answers</h1>
-            {Object.keys(orig).length > 0 && (
-              <div className="qx-ai-note">
-                <b>These longer answers were drafted by AI from your short answers.</b> Please read them. Fix anything that is not true for you, and delete anything that does not apply. Only what you leave here will be sent.
+            <h1 id="rev-h" className="qx-h1">Review your answers</h1>
+            <p className="qx-lead"><b>{answeredCount}</b> answered &middot; <b>{TOTAL_SHORT - answeredCount}</b> skipped. Skipping is fine. Edit anything, then press Submit.</p>
+            <div className="qx-card">
+              <div className="qx-row-between"><h2 className="qx-h2">About you</h2><button className="qx-link" onClick={() => setScreen("about")}>Edit</button></div>
+              <p className="qx-rev-a"><b>{profile.name || "-"}</b> &middot; {profile.field || "-"}{profile.email ? ` · ${profile.email}` : ""} &middot; {profile.date}</p>
+            </div>
+            {SHORT_STEPS.map((s, i) => (
+              <div className="qx-card" key={s.key}>
+                <div className="qx-row-between"><h2 className="qx-h2" style={{ color: s.color }}>{s.part}: {s.title}</h2><button className="qx-link" onClick={() => setScreen(`s${i}`)}>Edit</button></div>
+                {s.questions.map((q) => {
+                  const a = answers[q.id];
+                  return (
+                    <div className="qx-rev" key={q.id}>
+                      <div className="qx-rev-q"><span className="qx-badge" style={{ background: s.color }}>{q.id.replace("Q", "")}</span> {q.text}</div>
+                      {hasContent(a) ? <p className="qx-rev-a">{a.choice && <em>[{a.choice}] </em>}{a.answer}</p> : <p className="qx-muted">Skipped</p>}
+                    </div>
+                  );
+                })}
               </div>
-            )}
-            {draftNote && <div className="qx-note">{draftNote}</div>}
-            {STEPS.map((s, i) => {
-              const qs = s.groups.flatMap((g) => g.questions);
-              const filled = qs.filter((q) => details[q.id]?.answer.trim()).length;
-              return (
-                <details className="qx-acc" key={s.key} open={i === 0}>
-                  <summary style={{ color: s.color }}>{s.part}: {s.title} <span className="qx-muted">({filled} of {qs.length} filled)</span></summary>
-                  {qs.map((q) => {
-                    const mapped = CHOICE_MAP[q.id] ? answers[CHOICE_MAP[q.id]]?.choice : undefined;
-                    const d = details[q.id];
-                    return (
-                      <div className="qx-rev" key={q.id}>
-                        <label className="qx-rev-q" htmlFor={`d-${q.id}`}><span className="qx-badge" style={{ background: s.color }}>{q.id}</span> {q.text}</label>
-                        {mapped && <div className="qx-chip">You chose: {mapped}</div>}
-                        <textarea id={`d-${q.id}`} className="qx-textarea qx-detail" value={d?.answer ?? ""} maxLength={MAX_ANSWER_CHARS} placeholder="Nothing drafted. Add detail if you like, or leave empty."
-                          onChange={(e) => editDetail(q.id, e.target.value)} onBlur={persist} rows={3} />
-                        {d?.source === "ai" && <div className="qx-tag qx-tag-ai">AI draft</div>}
-                        {d?.source === "edited" && <div className="qx-tag qx-tag-ok">Edited by you</div>}
-                      </div>
-                    );
-                  })}
-                </details>
-              );
-            })}
-            {aiLeft > 0 && (
-              <label className="qx-consent qx-confirm">
-                <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
-                <span>I have read these answers. They reflect what I really think, and I have changed or deleted anything that is not true for me.</span>
-              </label>
-            )}
+            ))}
             {submitError && <div className="qx-error-box" role="alert">{submitError}</div>}
             <div className="qx-nav">
-              <button className="qx-btn" onClick={() => setScreen(`s${lastStep}`)} disabled={busy}>Back to questions</button>
-              <button className="qx-btn qx-primary qx-big" onClick={submit} disabled={busy || (aiLeft > 0 && !confirmed)}>{busy ? "Sending..." : submitError ? "Try again" : "Submit"}</button>
+              <button className="qx-btn" onClick={() => setScreen(`s${lastStep}`)} disabled={busy}>Back</button>
+              <button className="qx-btn qx-primary qx-big" onClick={submit} disabled={busy}>{busy ? "Sending..." : submitError ? "Try again" : "Submit"}</button>
             </div>
           </section>
         )}
@@ -372,7 +288,7 @@ function Welcome({ hasDraft, onStart, onContinue }: { hasDraft: boolean; onStart
         <ol className="qx-steps">
           <li><span>1</span>Write your name, your field and today&rsquo;s date.</li>
           <li><span>2</span>Answer 15 quick questions. Tap an option or write a few sentences. Read the grey helper text if you are not sure.</li>
-          <li><span>3</span>Check the detailed answers I prepare from yours, change anything that is not right, and press Submit. They reach me automatically.</li>
+          <li><span>3</span>Review your answers and press Submit. Your answers reach me automatically.</li>
         </ol>
       </div>
       <div className="qx-card">
@@ -383,7 +299,6 @@ function Welcome({ hasDraft, onStart, onContinue }: { hasDraft: boolean; onStart
           <li>If you do not know an answer or do not want to answer, skip it.</li>
           <li>A real situation is more useful than a general opinion. Say what happened, who was affected, and how it was handled.</li>
           <li>Do not write real names or private details of patients, clients, customers or colleagues. Write &ldquo;a customer&rdquo; instead of a real name. Do not share secret company information.</li>
-          <li>At the end, an AI drafts longer answers from your short ones. They are only suggestions: you must read them and fix anything that is not true for you.</li>
           <li>The examples come from other fields. They only show the style of an answer. Write from your own field and experience.</li>
         </ul>
       </div>
@@ -484,17 +399,13 @@ function CodeGate({ slug, onDone }: { slug: string; onDone: () => void }) {
 function Done({ r }: { r: Result }) {
   const excerpt = (s: string) => (s.length > 280 ? `${s.slice(0, 280).trim()}...` : s);
   const answered = SHORT_QUESTIONS.filter((q) => hasContent(r.answers[q.id])).length;
-  const detailedCount = ALL_QUESTIONS.filter((q) => r.details[q.id]?.answer.trim()).length;
   const download = (name: string, mime: string, body: string) => {
     const url = URL.createObjectURL(new Blob([body], { type: mime }));
     const a = document.createElement("a");
     a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
   };
-  const rows = () => [
-    ...SHORT_QUESTIONS.map((q) => ({ id: q.id, question: q.text, choice: r.answers[q.id]?.choice ?? "", answer: r.answers[q.id]?.answer ?? "" })),
-    ...ALL_QUESTIONS.map((q) => ({ id: q.id, question: q.text, choice: (CHOICE_MAP[q.id] && r.answers[CHOICE_MAP[q.id]]?.choice) || "", answer: r.details[q.id]?.answer ?? "" }))
-  ];
+  const rows = () => SHORT_QUESTIONS.map((q) => ({ id: q.id, question: q.text, choice: r.answers[q.id]?.choice ?? "", answer: r.answers[q.id]?.answer ?? "" }));
   const json = () => download("my-answers.json", "application/json", JSON.stringify({ profile: { name: r.profile.name, field: r.profile.field, date: r.profile.date }, answers: rows() }, null, 2));
   const csv = () => {
     const c = (v: string) => `"${(/^[=+\-@]/.test(v) ? `'${v}` : v).replace(/"/g, '""')}"`;
@@ -508,7 +419,7 @@ function Done({ r }: { r: Result }) {
 
       <div className="qx-card">
         <h2 className="qx-h2">Your summary</h2>
-        <dl className="qx-dl"><dt>Name</dt><dd>{r.profile.name}</dd><dt>Field</dt><dd>{r.profile.field}</dd><dt>Quick questions answered</dt><dd>{answered} of {TOTAL_SHORT}</dd><dt>Detailed answers sent</dt><dd>{detailedCount} of {TOTAL_QUESTIONS}</dd></dl>
+        <dl className="qx-dl"><dt>Name</dt><dd>{r.profile.name}</dd><dt>Field</dt><dd>{r.profile.field}</dd><dt>Questions answered</dt><dd>{answered} of {TOTAL_SHORT}</dd></dl>
         {SHORT_STEPS.map((s) => {
           const n = s.questions.filter((q) => hasContent(r.answers[q.id])).length;
           return (
@@ -531,8 +442,8 @@ function Done({ r }: { r: Result }) {
 
       {r.tips.length > 0 && (
         <div className="qx-card qx-advice">
-          <h2 className="qx-h2">Some advice for your field</h2>
-          <p className="qx-muted">{r.source === "ai" ? `Written for you based on your answers in ${r.profile.field}.` : "A few practical ideas to take further."}</p>
+          <h2 className="qx-h2">Some advice to take further</h2>
+          <p className="qx-muted">A few practical ideas to take further.</p>
           <ul>{r.tips.map((t, i) => <li key={i}>{t}</li>)}</ul>
         </div>
       )}
