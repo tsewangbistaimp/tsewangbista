@@ -1,6 +1,6 @@
 // Personalised end-of-form tips. Uses Claude when ANTHROPIC_API_KEY is set, otherwise helpful fixed tips.
 import { cfg } from "./config";
-import { QUICK_VIEW_IDS } from "./questions";
+import { SHORT_QUESTIONS, SHORT_QUICK_IDS } from "./short";
 import type { Answers, Profile } from "./schema";
 
 const FALLBACK = [
@@ -13,7 +13,7 @@ const FALLBACK = [
 
 export async function buildAdvice(profile: Profile, answers: Answers): Promise<{ tips: string[]; source: "ai" | "default" }> {
   if (!cfg.anthropicKey()) return { tips: FALLBACK, source: "default" };
-  const key = QUICK_VIEW_IDS.map((id) => `${id}: ${answers[id]?.answer ?? "(skipped)"}`).join("\n");
+  const key = SHORT_QUICK_IDS.map((id) => `${SHORT_QUESTIONS.find((q) => q.id === id)?.text}\n${answers[id]?.answer ?? "(skipped)"}`).join("\n\n");
   const prompt = `A person working or studying in "${profile.field}" answered a research questionnaire. Their key answers:\n${key}\n\nWrite 4 to 5 short, practical, encouraging pieces of advice specific to their field and what they wrote (problems, solution idea, improvements for the next generation). Each is 1-2 plain sentences. Do not give medical, legal or financial instructions. Reply with ONLY a JSON array of strings.`;
   try {
     const ctl = new AbortController();

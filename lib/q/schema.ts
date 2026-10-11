@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { QUESTION_IDS, ALL_QUESTIONS } from "./questions";
+import { SHORT_IDS, SHORT_QUESTIONS } from "./short";
 
 export const MAX_ANSWER_CHARS = 5000;
 
@@ -20,7 +21,9 @@ const text = (max: number) => z.string().max(max * 2).transform((v) => clean(v, 
 
 export const answerSchema = z.object({
   answer: text(MAX_ANSWER_CHARS).default(""),
-  choice: text(80).optional()
+  choice: text(400).optional(),
+  /** own = typed/tapped by the respondent, ai = AI draft they confirmed, edited = AI draft they changed */
+  source: z.enum(["own", "ai", "edited"]).optional()
 });
 
 export const profileSchema = z.object({
@@ -41,10 +44,11 @@ export const submissionSchema = z.object({
   startedAt: z.string().datetime().optional(),
   inviteToken: z.string().max(80).optional(),
   website: z.string().max(0).optional(), // honeypot: real people leave this empty
+  draftConfirmed: z.boolean().optional(),
   profile: profileSchema,
   answers: z
     .record(answerSchema)
-    .refine((r) => Object.keys(r).every((k) => QUESTION_IDS.includes(k)), "Unknown question id.")
+    .refine((r) => Object.keys(r).every((k) => QUESTION_IDS.includes(k) || SHORT_IDS.includes(k)), "Unknown question id.")
 });
 
 export type Profile = z.infer<typeof profileSchema>;
@@ -54,11 +58,16 @@ export type Answers = Submission["answers"];
 /** Drop empty answers and invalid quick-choice values so only real data is stored/sent. */
 export function normaliseAnswers(a: Answers): Answers {
   const out: Answers = {};
-  for (const q of ALL_QUESTIONS) {
+  const all = [...SHORT_QUESTIONS.map((q) => ({ id: q.id, choices: q.choices, multi: q.kind === "multi" })), ...ALL_QUESTIONS.map((q) => ({ id: q.id, choices: q.choices, multi: false }))];
+  for (const q of all) {
     const v = a[q.id];
     if (!v) continue;
-    const choice = v.choice && q.choices?.includes(v.choice) ? v.choice : undefined;
-    if (v.answer || choice) out[q.id] = { answer: v.answer, ...(choice ? { choice } : {}) };
+    let choice: string | undefined;
+    if (v.choice && q.choices) {
+      const picked = v.choice.split("; ").filter((c) => q.choices!.includes(c));
+      choice = (q.multi ? picked : picked.slice(0, 1)).join("; ") || undefined;
+    }
+    if (v.answer || choice) out[q.id] = { answer: v.answer, ...(choice ? { choice } : {}), source: v.source ?? "own" };
   }
   return out;
 }

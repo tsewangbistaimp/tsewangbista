@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { cookies } from "next/headers";
+import { checkAccess } from "@/lib/q/access";
 import { buildAdvice } from "@/lib/q/advice";
-import { cfg, cookieValid, hasDb, isOpen } from "@/lib/q/config";
+import { isOpen } from "@/lib/q/config";
 import { sendEmail } from "@/lib/q/email";
 import { json, limited, notFound, sameOrigin } from "@/lib/q/guard";
 import { countAnswered, normaliseAnswers, submissionSchema } from "@/lib/q/schema";
-import { findByKey, findInvite, inviteUsable, markInviteUsed, saveSubmission, setEmailStatus } from "@/lib/q/store";
+import { findByKey, markInviteUsed, saveSubmission, setEmailStatus } from "@/lib/q/store";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -36,19 +36,9 @@ export async function POST(req: Request) {
   if (data.website) return json({ ok: true, id: randomUUID(), tips: [], source: "default" }); // honeypot: pretend success
 
   // Access control
-  let inviteId: string | null = null;
-  let inviteLabel: string | undefined;
-  let singleUse = false;
-  if (cfg.access() === "token" && hasDb()) {
-    const inv = await findInvite(data.inviteToken ?? "");
-    if (!inviteUsable(inv)) return notFound();
-    inviteId = inv.id;
-    inviteLabel = inv.label;
-    singleUse = inv.single_use;
-  } else if (cfg.access() === "code") {
-    const jar = await cookies();
-    if (!cookieValid(jar.get("q_ok")?.value, "ok")) return notFound();
-  }
+  const access = await checkAccess(data.inviteToken);
+  if (!access.ok) return notFound();
+  const { inviteId, inviteLabel, singleUse } = access;
 
   const answers = normaliseAnswers(data.answers);
   const { tips, source } = await buildAdvice(data.profile, answers);
@@ -66,8 +56,9 @@ export async function POST(req: Request) {
     id, idempotency_key: data.idempotencyKey, name: data.profile.name, field: data.profile.field, email: data.profile.email,
     invite_id: inviteId, payload: { profile: data.profile, answers, startedAt: data.startedAt, durationSec }
   });
-  const emailed = await sendEmail({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel });
-  if (saved) await setEmailStatus(id, emailed ? "sent" : "failed");
+  const mail = await sendEmail({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel, draftConfirmed: data.draftConfirmed });
+  const emailed = mail.ok;
+  if (saved) await setEmailStatus(id, emailed ? "sent" : `failed - ${mail.detail}`);
   if (saved && singleUse && inviteId) await markInviteUsed(inviteId);
 
   if (!saved && !emailed) {

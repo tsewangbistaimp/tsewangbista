@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ALL_QUESTIONS } from "@/lib/q/questions";
+import { SHORT_QUESTIONS } from "@/lib/q/short";
 
-type Row = { id: string; name: string; field: string; email: string; at: string; status: string; answered: number; answers: Record<string, { answer: string; choice?: string }> };
+type Row = { id: string; name: string; field: string; email: string; at: string; status: string; answered: number; answers: Record<string, { answer: string; choice?: string; source?: string }> };
 type Invite = { id: string; label: string; revoked: boolean; singleUse: boolean; used: boolean; link: string };
 
 type Props = {
@@ -61,11 +62,11 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
 
       <div className="qx-table-wrap">
         <table className="qx-table">
-          <thead><tr><th>Name</th><th>Field</th><th>Answered</th><th>Date</th><th>Email sent</th><th /></tr></thead>
+          <thead><tr><th>Name</th><th>Field</th><th>Answered</th><th>Date</th><th>Email status</th><th /></tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
-                <td>{r.name}</td><td>{r.field}</td><td>{r.answered}/{total}</td><td>{r.at.slice(0, 10)}</td><td>{r.status}</td>
+                <td>{r.name}</td><td>{r.field}</td><td>{r.answered}/{total}</td><td>{r.at.slice(0, 10)}</td><td title={r.status}>{r.status.length > 40 ? `${r.status.slice(0, 40)}...` : r.status}</td>
                 <td><a href={`?id=${r.id}${query ? `&q=${encodeURIComponent(query)}` : ""}`}>Open</a></td>
               </tr>
             ))}
@@ -77,10 +78,10 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
       {open && (
         <section className="qx-card" aria-label="Submission details">
           <h2 className="qx-h2">{open.name} &middot; {open.field}</h2>
-          {ALL_QUESTIONS.map((q) => (
+          {[...SHORT_QUESTIONS, ...ALL_QUESTIONS].map((q) => (
             <div key={q.id} className="qx-ans">
               <div className="qx-ans-q"><b>{q.id}</b> {q.text}</div>
-              {open.answers[q.id] ? <p className="qx-ans-a">{open.answers[q.id].choice && <em>[{open.answers[q.id].choice}] </em>}{open.answers[q.id].answer}</p> : <p className="qx-muted">Skipped</p>}
+              {open.answers[q.id] ? <p className="qx-ans-a">{open.answers[q.id].source && open.answers[q.id].source !== "own" && <b>[{open.answers[q.id].source === "ai" ? "AI draft, confirmed" : "AI draft, edited"}] </b>}{open.answers[q.id].choice && <em>[{open.answers[q.id].choice}] </em>}{open.answers[q.id].answer}</p> : <p className="qx-muted">Skipped</p>}
             </div>
           ))}
         </section>

@@ -1,26 +1,33 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ALL_QUESTIONS, QUICK_VIEW_IDS, STEPS, TOTAL_QUESTIONS, type Question } from "@/lib/q/questions";
+import { ALL_QUESTIONS, STEPS, TOTAL_QUESTIONS } from "@/lib/q/questions";
+import { CHOICE_MAP, SHORT_QUESTIONS, SHORT_QUICK_IDS, SHORT_STEPS, TOTAL_SHORT, type ShortQuestion } from "@/lib/q/short";
 import { MAX_ANSWER_CHARS } from "@/lib/q/schema";
 
 type Ans = { answer: string; choice?: string };
 type Answers = Record<string, Ans>;
+type Detail = { answer: string; source: "own" | "ai" | "edited" };
+type Details = Record<string, Detail>;
 type Profile = { name: string; field: string; email: string; date: string; consent: boolean };
-type Draft = { v: 1; profile: Profile; answers: Answers; startedAt: string; key: string; screen: string };
-type Result = { tips: string[]; source: string; answered: number; profile: Profile; answers: Answers };
+type Draft = { v: 2; profile: Profile; answers: Answers; details: Details; orig: Record<string, string>; hash: string; startedAt: string; key: string; screen: string };
+type Result = { tips: string[]; source: string; profile: Profile; answers: Answers; details: Details };
 
 const today = () => new Date().toISOString().slice(0, 10);
 const uuid = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (Number(c) ^ (Math.random() * 16) >> (Number(c) / 4)).toString(16)));
 const blankProfile = (): Profile => ({ name: "", field: "", email: "", date: today(), consent: false });
 const hasContent = (a?: Ans) => Boolean(a && (a.answer.trim() || a.choice));
+const hashOf = (a: Answers) => JSON.stringify(SHORT_QUESTIONS.map((q) => [a[q.id]?.answer ?? "", a[q.id]?.choice ?? ""]));
 
 export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: string; inviteToken: string; gate: "open" | "code" }) {
-  const storeKey = `qx:${slug.slice(0, 10)}:${inviteToken.slice(0, 6)}`;
+  const storeKey = `qx2:${slug.slice(0, 10)}:${inviteToken.slice(0, 6)}`;
   const [unlocked, setUnlocked] = useState(gate === "open");
   const [screen, setScreen] = useState("welcome");
   const [profile, setProfile] = useState<Profile>(blankProfile);
   const [answers, setAnswers] = useState<Answers>({});
+  const [details, setDetails] = useState<Details>({});
+  const [orig, setOrig] = useState<Record<string, string>>({});
+  const [hash, setHash] = useState("");
   const [startedAt, setStartedAt] = useState("");
   const [key, setKey] = useState("");
   const [hasDraft, setHasDraft] = useState(false);
@@ -30,10 +37,12 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [draftNote, setDraftNote] = useState("");
+  const [confirmed, setConfirmed] = useState(false);
   const [toast, setToast] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const lock = useRef(false);
-  const topRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLElement>(null);
 
   // Restore a saved draft (if any) once on first load. localStorage only exists in the browser,
   // so this has to run in an effect after hydration.
@@ -43,13 +52,15 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
       const raw = localStorage.getItem(storeKey);
       if (raw) {
         const d = JSON.parse(raw) as Draft;
-        if (d.v === 1) {
+        if (d.v === 2) {
           setProfile({ ...blankProfile(), ...d.profile });
           setAnswers(d.answers ?? {});
+          setDetails(d.details ?? {});
+          setOrig(d.orig ?? {});
+          setHash(d.hash ?? "");
           setStartedAt(d.startedAt);
           setKey(d.key);
           setHasDraft(Boolean(Object.keys(d.answers ?? {}).length || d.profile?.name));
-          setScreen("welcome");
           setReady(true);
           return;
         }
@@ -65,14 +76,14 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
 
   const persist = useCallback(() => {
     try {
-      const d: Draft = { v: 1, profile, answers, startedAt, key, screen };
+      const d: Draft = { v: 2, profile, answers, details, orig, hash, startedAt, key, screen: screen === "drafting" ? "confirm" : screen };
       localStorage.setItem(storeKey, JSON.stringify(d));
       setSaved("saved");
       setDirty(false);
     } catch {
       setSaved("idle");
     }
-  }, [profile, answers, startedAt, key, screen, storeKey]);
+  }, [profile, answers, details, orig, hash, startedAt, key, screen, storeKey]);
 
   // Autosave a moment after the last change (the flags mirror that external save state).
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -82,7 +93,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
     setSaved("saving");
     const t = setTimeout(persist, 1200);
     return () => clearTimeout(t);
-  }, [ready, profile, answers, screen, persist]);
+  }, [ready, profile, answers, details, screen, persist]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
@@ -104,7 +115,8 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
     return () => clearTimeout(t);
   }, [toast]);
 
-  const answeredCount = useMemo(() => ALL_QUESTIONS.filter((q) => hasContent(answers[q.id])).length, [answers]);
+  const answeredCount = useMemo(() => SHORT_QUESTIONS.filter((q) => hasContent(answers[q.id])).length, [answers]);
+  const aiLeft = useMemo(() => Object.values(details).filter((d) => d.source !== "own" && d.answer.trim()).length, [details]);
   const setAns = (id: string, patch: Partial<Ans>) => setAnswers((a) => ({ ...a, [id]: { ...(a[id] ?? { answer: "" }), ...patch } }));
 
   function validateProfile(): boolean {
@@ -118,9 +130,49 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
     return Object.keys(e).length === 0;
   }
 
+  // Ask the server to draft the 57 detailed answers from the short ones (skipped if nothing changed).
+  async function buildDraft() {
+    if (!validateProfile()) { setScreen("about"); return; }
+    const h = hashOf(answers);
+    if (h === hash && Object.keys(details).length) { setScreen("confirm"); return; }
+    setScreen("drafting");
+    setDraftNote("");
+    let drafts: Record<string, string> | null = null;
+    try {
+      const r = await fetch("/api/questionnaire/draft", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inviteToken: inviteToken || undefined, field: profile.field.trim(), answers: Object.fromEntries(Object.entries(answers).filter(([, v]) => hasContent(v))) })
+      });
+      if (r.ok) drafts = ((await r.json()) as { drafts: Record<string, string> | null }).drafts;
+    } catch {
+      /* fall through: the respondent can still submit the short answers */
+    }
+    const next: Details = {};
+    const o: Record<string, string> = {};
+    if (drafts) for (const [id, text] of Object.entries(drafts)) { next[id] = { answer: text, source: "ai" }; o[id] = text; }
+    setDetails(next);
+    setOrig(o);
+    setHash(h);
+    setConfirmed(false);
+    if (!drafts) setDraftNote("The detailed draft could not be prepared right now. That is fine: you can submit your short answers as they are, or write extra detail yourself below.");
+    setScreen("confirm");
+  }
+
+  function editDetail(id: string, text: string) {
+    setDetails((d) => {
+      const o = orig[id];
+      const source: Detail["source"] = o === undefined ? "own" : text === o ? "ai" : "edited";
+      const copy = { ...d };
+      if (!text.trim() && o === undefined) delete copy[id]; else copy[id] = { answer: text, source };
+      return copy;
+    });
+    setConfirmed(false);
+  }
+
   async function submit() {
     if (lock.current) return;
     if (!validateProfile()) { setScreen("about"); return; }
+    if (aiLeft > 0 && !confirmed) { setSubmitError("Please tick the confirmation box above the Submit button."); return; }
     lock.current = true;
     setBusy(true);
     setSubmitError("");
@@ -130,16 +182,23 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
       return;
     }
     try {
+      const all: Record<string, Ans & { source: string }> = {};
+      for (const q of SHORT_QUESTIONS) if (hasContent(answers[q.id])) all[q.id] = { ...answers[q.id], source: "own" };
+      for (const q of ALL_QUESTIONS) {
+        const d = details[q.id];
+        const mapped = CHOICE_MAP[q.id] ? answers[CHOICE_MAP[q.id]]?.choice : undefined;
+        if ((d && d.answer.trim()) || mapped) all[q.id] = { answer: d?.answer.trim() ?? "", ...(mapped ? { choice: mapped } : {}), source: d && d.answer.trim() ? d.source : "own" };
+      }
       const payload = {
-        idempotencyKey: key, startedAt, inviteToken: inviteToken || undefined, website: "",
+        idempotencyKey: key, startedAt, inviteToken: inviteToken || undefined, website: "", draftConfirmed: aiLeft > 0 ? confirmed : undefined,
         profile: { ...profile, name: profile.name.trim(), field: profile.field.trim(), email: profile.email.trim() },
-        answers: Object.fromEntries(Object.entries(answers).filter(([, v]) => hasContent(v)))
+        answers: all
       };
       const r = await fetch("/api/questionnaire/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string; tips?: string[]; source?: string };
       if (!r.ok || !data.ok) throw new Error(data.error ?? "Something went wrong. Please try again.");
       try { localStorage.removeItem(storeKey); } catch { /* ignore */ }
-      setResult({ tips: data.tips ?? [], source: data.source ?? "default", answered: answeredCount, profile, answers });
+      setResult({ tips: data.tips ?? [], source: data.source ?? "default", profile, answers, details });
       setScreen("done");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -153,10 +212,10 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
   if (!ready) return <main className="qx-shell" aria-busy="true" />;
   if (!unlocked) return <CodeGate slug={slug} onDone={() => setUnlocked(true)} />;
 
-  const stepIndex = screen.startsWith("s") ? Number(screen.slice(1)) : -1;
-  const inFlow = stepIndex >= 0 || screen === "review" || screen === "about";
-  const stepNo = screen === "about" ? 0 : stepIndex >= 0 ? stepIndex + 1 : screen === "review" ? 6 : 0;
-  const pct = Math.round((answeredCount / TOTAL_QUESTIONS) * 100);
+  const stepIndex = /^s\d$/.test(screen) ? Number(screen.slice(1)) : -1;
+  const inFlow = stepIndex >= 0 || screen === "confirm" || screen === "about" || screen === "drafting";
+  const pct = Math.round((answeredCount / TOTAL_SHORT) * 100);
+  const lastStep = SHORT_STEPS.length - 1;
 
   return (
     <>
@@ -167,9 +226,9 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
         </div>
         {inFlow && (
           <div className="qx-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Questions answered">
-            <div className="qx-progress-bar" style={{ width: `${Math.max(pct, stepNo ? 3 : 0)}%` }} />
+            <div className="qx-progress-bar" style={{ width: `${Math.max(pct, 3)}%` }} />
             <div className="qx-progress-text">
-              {screen === "review" ? "Review" : screen === "about" ? "About you" : `Step ${stepIndex + 1} of ${STEPS.length}`} &middot; {pct}% &middot; {answeredCount} of {TOTAL_QUESTIONS} answered
+              {screen === "confirm" || screen === "drafting" ? "Last step: check your detailed answers" : screen === "about" ? "About you" : `Step ${stepIndex + 1} of ${SHORT_STEPS.length}`} &middot; {answeredCount} of {TOTAL_SHORT} answered
             </div>
           </div>
         )}
@@ -179,7 +238,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
         {/* Honeypot: hidden from people, tempting to bots. */}
         <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="qx-hp" />
 
-        {screen === "welcome" && <Welcome hasDraft={hasDraft} onStart={() => setScreen("about")} onContinue={() => { const d = localStorage.getItem(storeKey); const s = d ? (JSON.parse(d) as Draft).screen : "about"; setScreen(s && s !== "welcome" && s !== "done" ? s : "about"); }} />}
+        {screen === "welcome" && <Welcome hasDraft={hasDraft} onStart={() => setScreen("about")} onContinue={() => { try { const d = JSON.parse(localStorage.getItem(storeKey) ?? "{}") as Draft; setScreen(d.screen && d.screen !== "welcome" && d.screen !== "done" ? d.screen : "about"); } catch { setScreen("about"); } }} />}
 
         {screen === "about" && (
           <section aria-labelledby="about-h">
@@ -192,7 +251,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
               <Field label="Your field of study or work" required error={errors.field} hint="Write it in your own words, for example dentistry, accounting, teaching, farming, engineering.">
                 <input className="qx-input" value={profile.field} maxLength={160} onChange={(e) => setProfile({ ...profile, field: e.target.value })} />
               </Field>
-              <Field label="Email" error={errors.email} hint="Optional. Only used so I can contact you if you say yes in F4.">
+              <Field label="Email" error={errors.email} hint="Optional. Only used so I can contact you if you say yes at the end.">
                 <input className="qx-input" type="email" inputMode="email" value={profile.email} maxLength={200} autoComplete="email" onChange={(e) => setProfile({ ...profile, email: e.target.value })} />
               </Field>
               <Field label="Date" required error={errors.date}>
@@ -205,63 +264,81 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
               {errors.consent && <p className="qx-error" role="alert">{errors.consent}</p>}
             </div>
             <div className="qx-note">
-              <b>Privacy.</b> I collect your name, field, optional email and your answers, only to learn about real problems in different fields. Only I (Tsewang Bista) can see them, and I will keep them for this research project. Short tips at the end may be written by an AI service from your key answers; they are not used for anything else. To remove your answers, just email me. Please do not write real names or private details of patients, clients, customers or colleagues, and no confidential company information.
+              <b>Privacy.</b> I collect your name, field, optional email and your answers, only to learn about real problems in different fields. Only I (Tsewang Bista) can see them, and I will keep them for this research project. At the end, an AI service reads your short answers to draft the longer answers and tips for you; you check and change everything before it is sent, and the text is not used for anything else. To remove your answers, just email me. Please do not write real names or private details of patients, clients, customers or colleagues, and no confidential company information.
             </div>
             <Nav onBack={() => setScreen("welcome")} onNext={() => { if (validateProfile()) setScreen("s0"); }} nextLabel="Start the questions" />
           </section>
         )}
 
         {stepIndex >= 0 && (() => {
-          const s = STEPS[stepIndex];
+          const s = SHORT_STEPS[stepIndex];
           return (
             <section aria-labelledby="step-h">
               <p className="qx-part" style={{ color: s.color }}>{s.part} of 5</p>
               <h1 id="step-h" className="qx-h1">{s.title}</h1>
               <p className="qx-lead">{s.intro}</p>
-              {s.groups.map((g) => (
-                <div key={g.code}>
-                  <h2 className="qx-group" style={{ borderColor: s.color }}>{g.code}: {g.title}</h2>
-                  {g.questions.map((q) => (
-                    <QuestionBlock key={q.id} q={q} value={answers[q.id]} color={s.color}
-                      onChoice={(c) => setAns(q.id, { choice: c })} onText={(t) => setAns(q.id, { answer: t })} onBlur={persist} />
-                  ))}
-                </div>
+              {s.questions.map((q) => (
+                <QuestionBlock key={q.id} q={q} value={answers[q.id]} color={s.color} onChange={(patch) => setAns(q.id, patch)} onBlur={persist} />
               ))}
               <div className="qx-later">
                 <button className="qx-link" onClick={() => { persist(); setToast("Saved on this device. Open the same link on this device later to continue."); }}>Save and finish later</button>
               </div>
-              <Nav onBack={() => setScreen(stepIndex === 0 ? "about" : `s${stepIndex - 1}`)} onNext={() => setScreen(stepIndex === STEPS.length - 1 ? "review" : `s${stepIndex + 1}`)}
-                nextLabel={stepIndex === STEPS.length - 1 ? "Review my answers" : `Next: ${STEPS[stepIndex + 1].title}`} />
+              <Nav onBack={() => setScreen(stepIndex === 0 ? "about" : `s${stepIndex - 1}`)} onNext={() => (stepIndex === lastStep ? buildDraft() : setScreen(`s${stepIndex + 1}`))}
+                nextLabel={stepIndex === lastStep ? "Finish: build my full answers" : `Next: ${SHORT_STEPS[stepIndex + 1].title}`} />
             </section>
           );
         })()}
 
-        {screen === "review" && (
+        {screen === "drafting" && (
+          <section aria-live="polite" className="qx-center">
+            <div className="qx-spin" aria-hidden="true" />
+            <h1 className="qx-h1">Preparing your detailed answers...</h1>
+            <p className="qx-lead">I am turning your short answers into fuller written answers. This takes about 20-30 seconds. You will check them before anything is sent.</p>
+          </section>
+        )}
+
+        {screen === "confirm" && (
           <section aria-labelledby="rev-h">
-            <h1 id="rev-h" className="qx-h1">Review your answers</h1>
-            <p className="qx-lead"><b>{answeredCount}</b> answered &middot; <b>{TOTAL_QUESTIONS - answeredCount}</b> skipped. Skipping is fine. Edit anything, then press Submit.</p>
-            <div className="qx-card">
-              <div className="qx-row-between"><h2 className="qx-h2">About you</h2><button className="qx-link" onClick={() => setScreen("about")}>Edit</button></div>
-              <p className="qx-rev-a"><b>{profile.name || "-"}</b> &middot; {profile.field || "-"}{profile.email ? ` · ${profile.email}` : ""} &middot; {profile.date}</p>
-            </div>
-            {STEPS.map((s, i) => (
-              <div className="qx-card" key={s.key}>
-                <div className="qx-row-between"><h2 className="qx-h2" style={{ color: s.color }}>{s.part}: {s.title}</h2><button className="qx-link" onClick={() => setScreen(`s${i}`)}>Edit</button></div>
-                {s.groups.flatMap((g) => g.questions).map((q) => {
-                  const a = answers[q.id];
-                  return (
-                    <div className="qx-rev" key={q.id}>
-                      <div className="qx-rev-q"><span className="qx-badge">{q.id}</span> {q.text}</div>
-                      {hasContent(a) ? <p className="qx-rev-a">{a.choice && <em>[{a.choice}] </em>}{a.answer}</p> : <p className="qx-muted">Skipped</p>}
-                    </div>
-                  );
-                })}
+            <h1 id="rev-h" className="qx-h1">Check your detailed answers</h1>
+            {Object.keys(orig).length > 0 && (
+              <div className="qx-ai-note">
+                <b>These longer answers were drafted by AI from your short answers.</b> Please read them. Fix anything that is not true for you, and delete anything that does not apply. Only what you leave here will be sent.
               </div>
-            ))}
+            )}
+            {draftNote && <div className="qx-note">{draftNote}</div>}
+            {STEPS.map((s, i) => {
+              const qs = s.groups.flatMap((g) => g.questions);
+              const filled = qs.filter((q) => details[q.id]?.answer.trim()).length;
+              return (
+                <details className="qx-acc" key={s.key} open={i === 0}>
+                  <summary style={{ color: s.color }}>{s.part}: {s.title} <span className="qx-muted">({filled} of {qs.length} filled)</span></summary>
+                  {qs.map((q) => {
+                    const mapped = CHOICE_MAP[q.id] ? answers[CHOICE_MAP[q.id]]?.choice : undefined;
+                    const d = details[q.id];
+                    return (
+                      <div className="qx-rev" key={q.id}>
+                        <label className="qx-rev-q" htmlFor={`d-${q.id}`}><span className="qx-badge" style={{ background: s.color }}>{q.id}</span> {q.text}</label>
+                        {mapped && <div className="qx-chip">You chose: {mapped}</div>}
+                        <textarea id={`d-${q.id}`} className="qx-textarea qx-detail" value={d?.answer ?? ""} maxLength={MAX_ANSWER_CHARS} placeholder="Nothing drafted. Add detail if you like, or leave empty."
+                          onChange={(e) => editDetail(q.id, e.target.value)} onBlur={persist} rows={3} />
+                        {d?.source === "ai" && <div className="qx-tag qx-tag-ai">AI draft</div>}
+                        {d?.source === "edited" && <div className="qx-tag qx-tag-ok">Edited by you</div>}
+                      </div>
+                    );
+                  })}
+                </details>
+              );
+            })}
+            {aiLeft > 0 && (
+              <label className="qx-consent qx-confirm">
+                <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
+                <span>I have read these answers. They reflect what I really think, and I have changed or deleted anything that is not true for me.</span>
+              </label>
+            )}
             {submitError && <div className="qx-error-box" role="alert">{submitError}</div>}
             <div className="qx-nav">
-              <button className="qx-btn" onClick={() => setScreen(`s${STEPS.length - 1}`)} disabled={busy}>Back</button>
-              <button className="qx-btn qx-primary qx-big" onClick={submit} disabled={busy}>{busy ? "Sending..." : submitError ? "Try again" : "Submit"}</button>
+              <button className="qx-btn" onClick={() => setScreen(`s${lastStep}`)} disabled={busy}>Back to questions</button>
+              <button className="qx-btn qx-primary qx-big" onClick={submit} disabled={busy || (aiLeft > 0 && !confirmed)}>{busy ? "Sending..." : submitError ? "Try again" : "Submit"}</button>
             </div>
           </section>
         )}
@@ -278,7 +355,7 @@ function Welcome({ hasDraft, onStart, onContinue }: { hasDraft: boolean; onStart
   return (
     <section aria-labelledby="w-h">
       <h1 id="w-h" className="qx-h1 qx-hero">Knowledge, Problems and Solutions Questionnaire</h1>
-      <p className="qx-sub">Prepared by Tsewang Bista | 57 questions | About 25-35 minutes | No special knowledge needed</p>
+      <p className="qx-sub">Prepared by Tsewang Bista | 15 quick questions | About 5-10 minutes | No special knowledge needed</p>
       <div className="qx-card">
         <h2 className="qx-h2">Why you are here</h2>
         <p>My name is Tsewang Bista. I am a Computing student. I am asking 10 people from different fields about what they have studied and learned, why it is important, what problems they see, what solutions could help, and how their field can improve for the next generation. Later I will think about how technology might help. Your knowledge is valuable even if you have never thought about technology.</p>
@@ -287,26 +364,26 @@ function Welcome({ hasDraft, onStart, onContinue }: { hasDraft: boolean; onStart
       <div className="qx-card">
         <h2 className="qx-h2">What you will answer</h2>
         <ol className="qx-parts">
-          <li><b>Part 1</b> Knowledge and Study</li><li><b>Part 2</b> Importance</li><li><b>Part 3</b> Problems</li><li><b>Part 4</b> Solutions</li><li><b>Part 5</b> Next Generation <span className="qx-muted">(plus a few final questions)</span></li>
+          <li><b>Part 1</b> Knowledge and Study</li><li><b>Part 2</b> Importance</li><li><b>Part 3</b> Problems</li><li><b>Part 4</b> Solutions</li><li><b>Part 5</b> Next Generation</li>
         </ol>
       </div>
       <div className="qx-card">
         <h2 className="qx-h2">3 easy steps</h2>
         <ol className="qx-steps">
           <li><span>1</span>Write your name, your field and today&rsquo;s date.</li>
-          <li><span>2</span>Answer the questions step by step. Read the grey helper text if you are not sure what to write.</li>
-          <li><span>3</span>Review and press Submit. Your answers reach me automatically.</li>
+          <li><span>2</span>Answer 15 quick questions. Tap an option or write a few sentences. Read the grey helper text if you are not sure.</li>
+          <li><span>3</span>Check the detailed answers I prepare from yours, change anything that is not right, and press Submit. They reach me automatically.</li>
         </ol>
       </div>
       <div className="qx-card">
         <h2 className="qx-h2">Rules</h2>
         <ul className="qx-rules">
           <li>There are no right or wrong answers. An honest answer is better than a perfect answer.</li>
-          <li>You can write one sentence or a full paragraph. Detailed answers help me most.</li>
-          <li>If you do not know an answer or do not want to answer, skip it and go to the next question.</li>
+          <li>You can write one sentence or a full paragraph. A little detail helps me a lot.</li>
+          <li>If you do not know an answer or do not want to answer, skip it.</li>
           <li>A real situation is more useful than a general opinion. Say what happened, who was affected, and how it was handled.</li>
           <li>Do not write real names or private details of patients, clients, customers or colleagues. Write &ldquo;a customer&rdquo; instead of a real name. Do not share secret company information.</li>
-          <li>If you see a Quick Choice dropdown, pick the closest option, then explain in the answer box.</li>
+          <li>At the end, an AI drafts longer answers from your short ones. They are only suggestions: you must read them and fix anything that is not true for you.</li>
           <li>The examples come from other fields. They only show the style of an answer. Write from your own field and experience.</li>
         </ul>
       </div>
@@ -325,33 +402,42 @@ function Welcome({ hasDraft, onStart, onContinue }: { hasDraft: boolean; onStart
   );
 }
 
-function QuestionBlock({ q, value, color, onChoice, onText, onBlur }: { q: Question; value?: Ans; color: string; onChoice: (c: string | undefined) => void; onText: (t: string) => void; onBlur: () => void }) {
+function QuestionBlock({ q, value, color, onChange, onBlur }: { q: ShortQuestion; value?: Ans; color: string; onChange: (p: Partial<Ans>) => void; onBlur: () => void }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const text = value?.answer ?? "";
   useEffect(() => {
     const el = ref.current;
-    if (el) { el.style.height = "auto"; el.style.height = `${Math.max(el.scrollHeight, 120)}px`; }
+    if (el) { el.style.height = "auto"; el.style.height = `${Math.max(el.scrollHeight, 110)}px`; }
   }, [text]);
+  const picked = (value?.choice ?? "").split("; ").filter(Boolean);
+  const toggle = (c: string) => {
+    if (q.kind === "multi") onChange({ choice: (picked.includes(c) ? picked.filter((x) => x !== c) : [...picked, c]).join("; ") || undefined });
+    else onChange({ choice: picked[0] === c ? undefined : c });
+    onBlur();
+  };
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
   return (
     <div className="qx-q" id={`q-${q.id}`}>
-      <div className="qx-q-head"><span className="qx-badge" style={{ background: color }}>{q.id}</span><h3 className="qx-q-text" id={`lbl-${q.id}`}>{q.text}</h3></div>
+      <div className="qx-q-head"><span className="qx-badge" style={{ background: color }}>{q.id.replace("Q", "")}</span><h3 className="qx-q-text" id={`lbl-${q.id}`}>{q.text}</h3></div>
       <p className="qx-helper">{q.helper}</p>
       {q.choices && (
-        <div className="qx-choices" role="radiogroup" aria-labelledby={`lbl-${q.id}`}>
+        <div className="qx-choices" role={q.kind === "multi" ? "group" : "radiogroup"} aria-labelledby={`lbl-${q.id}`}>
           {q.choices.map((c) => {
-            const on = value?.choice === c;
+            const on = picked.includes(c);
             return (
-              <button key={c} type="button" role="radio" aria-checked={on} className={`qx-choice ${on ? "qx-on" : ""}`} style={on ? { borderColor: color } : undefined}
-                onClick={() => { onChoice(on ? undefined : c); onBlur(); }}>
-                <span className="qx-radio" style={on ? { borderColor: color } : undefined}>{on && <i style={{ background: color }} />}</span>{c}
+              <button key={c} type="button" role={q.kind === "multi" ? "checkbox" : "radio"} aria-checked={on} className={`qx-choice ${on ? "qx-on" : ""}`} style={on ? { borderColor: color } : undefined} onClick={() => toggle(c)}>
+                <span className={`qx-radio ${q.kind === "multi" ? "qx-square" : ""}`} style={on ? { borderColor: color } : undefined}>{on && <i style={{ background: color }} />}</span>{c}
               </button>
             );
           })}
         </div>
       )}
-      <textarea ref={ref} className="qx-textarea" value={text} maxLength={MAX_ANSWER_CHARS} aria-labelledby={`lbl-${q.id}`} placeholder="Type your answer here (or skip)" onChange={(e) => onText(e.target.value)} onBlur={onBlur} />
-      <div className="qx-count">{words} {words === 1 ? "word" : "words"} &middot; {text.length}/{MAX_ANSWER_CHARS}{!text && !value?.choice ? " · Optional, you can skip" : words > 0 && words < 8 ? " · A few more details would help me" : ""}</div>
+      {q.kind === "text" && (
+        <>
+          <textarea ref={ref} className="qx-textarea" value={text} maxLength={MAX_ANSWER_CHARS} aria-labelledby={`lbl-${q.id}`} placeholder="Type your answer here (or skip)" onChange={(e) => onChange({ answer: e.target.value })} onBlur={onBlur} />
+          <div className="qx-count">{words} {words === 1 ? "word" : "words"}{!text ? " · Optional, you can skip" : words < 8 ? " · A few more details would help me" : ""}</div>
+        </>
+      )}
     </div>
   );
 }
@@ -397,18 +483,22 @@ function CodeGate({ slug, onDone }: { slug: string; onDone: () => void }) {
 
 function Done({ r }: { r: Result }) {
   const excerpt = (s: string) => (s.length > 280 ? `${s.slice(0, 280).trim()}...` : s);
+  const answered = SHORT_QUESTIONS.filter((q) => hasContent(r.answers[q.id])).length;
+  const detailedCount = ALL_QUESTIONS.filter((q) => r.details[q.id]?.answer.trim()).length;
   const download = (name: string, mime: string, body: string) => {
     const url = URL.createObjectURL(new Blob([body], { type: mime }));
     const a = document.createElement("a");
     a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
   };
-  const json = () => download("my-answers.json", "application/json", JSON.stringify({ profile: { name: r.profile.name, field: r.profile.field, date: r.profile.date }, answers: ALL_QUESTIONS.map((q) => ({ id: q.id, question: q.text, quickChoice: r.answers[q.id]?.choice ?? null, answer: r.answers[q.id]?.answer ?? null })) }, null, 2));
+  const rows = () => [
+    ...SHORT_QUESTIONS.map((q) => ({ id: q.id, question: q.text, choice: r.answers[q.id]?.choice ?? "", answer: r.answers[q.id]?.answer ?? "" })),
+    ...ALL_QUESTIONS.map((q) => ({ id: q.id, question: q.text, choice: (CHOICE_MAP[q.id] && r.answers[CHOICE_MAP[q.id]]?.choice) || "", answer: r.details[q.id]?.answer ?? "" }))
+  ];
+  const json = () => download("my-answers.json", "application/json", JSON.stringify({ profile: { name: r.profile.name, field: r.profile.field, date: r.profile.date }, answers: rows() }, null, 2));
   const csv = () => {
     const c = (v: string) => `"${(/^[=+\-@]/.test(v) ? `'${v}` : v).replace(/"/g, '""')}"`;
-    const lines = [["ID", "Section", "Question", "Quick Choice", "Answer"].map(c).join(",")];
-    for (const s of STEPS) for (const g of s.groups) for (const q of g.questions) lines.push([q.id, `${s.part}: ${s.title}`, q.text, r.answers[q.id]?.choice ?? "", r.answers[q.id]?.answer ?? ""].map(c).join(","));
-    download("my-answers.csv", "text/csv", "﻿" + lines.join("\r\n"));
+    download("my-answers.csv", "text/csv", "﻿" + [["ID", "Question", "Quick Choice", "Answer"].map(c).join(","), ...rows().map((x) => [x.id, x.question, x.choice, x.answer].map(c).join(","))].join("\r\n"));
   };
   return (
     <section aria-labelledby="d-h">
@@ -418,14 +508,13 @@ function Done({ r }: { r: Result }) {
 
       <div className="qx-card">
         <h2 className="qx-h2">Your summary</h2>
-        <dl className="qx-dl"><dt>Name</dt><dd>{r.profile.name}</dd><dt>Field</dt><dd>{r.profile.field}</dd><dt>Questions answered</dt><dd>{r.answered} of {TOTAL_QUESTIONS}</dd></dl>
-        {STEPS.map((s) => {
-          const qs = s.groups.flatMap((g) => g.questions);
-          const n = qs.filter((q) => hasContent(r.answers[q.id])).length;
+        <dl className="qx-dl"><dt>Name</dt><dd>{r.profile.name}</dd><dt>Field</dt><dd>{r.profile.field}</dd><dt>Quick questions answered</dt><dd>{answered} of {TOTAL_SHORT}</dd><dt>Detailed answers sent</dt><dd>{detailedCount} of {TOTAL_QUESTIONS}</dd></dl>
+        {SHORT_STEPS.map((s) => {
+          const n = s.questions.filter((q) => hasContent(r.answers[q.id])).length;
           return (
             <div className="qx-sum-row" key={s.key}>
-              <span>{s.part}: {s.title}</span><span>{n}/{qs.length}</span>
-              <div className="qx-meter"><div style={{ width: `${(n / qs.length) * 100}%`, background: s.color }} /></div>
+              <span>{s.part}: {s.title}</span><span>{n}/{s.questions.length}</span>
+              <div className="qx-meter"><div style={{ width: `${(n / s.questions.length) * 100}%`, background: s.color }} /></div>
             </div>
           );
         })}
@@ -433,10 +522,10 @@ function Done({ r }: { r: Result }) {
 
       <div className="qx-card">
         <h2 className="qx-h2">What you wrote (key answers)</h2>
-        {QUICK_VIEW_IDS.map((id) => {
-          const q = ALL_QUESTIONS.find((x) => x.id === id)!;
+        {SHORT_QUICK_IDS.map((id) => {
+          const q = SHORT_QUESTIONS.find((x) => x.id === id)!;
           const a = r.answers[id];
-          return <div className="qx-rev" key={id}><div className="qx-rev-q"><span className="qx-badge">{id}</span> {q.text}</div>{hasContent(a) ? <p className="qx-rev-a">{excerpt(a.answer || a.choice || "")}</p> : <p className="qx-muted">Skipped</p>}</div>;
+          return <div className="qx-rev" key={id}><div className="qx-rev-q">{q.text}</div>{hasContent(a) ? <p className="qx-rev-a">{excerpt(a.answer || a.choice || "")}</p> : <p className="qx-muted">Skipped</p>}</div>;
         })}
       </div>
 
