@@ -15,7 +15,15 @@ export const cfg = {
   recipient: () => env("RECIPIENT_EMAIL"),
   resendKey: () => env("RESEND_API_KEY"),
   mailFrom: () => env("MAIL_FROM") || "Questionnaire Website <onboarding@resend.dev>",
-  supabaseUrl: () => env("SUPABASE_URL").replace(/\/$/, ""),
+  // Only the origin is used, so a pasted "/rest/v1/" or trailing slash cannot break requests.
+  supabaseUrl: () => {
+    const raw = env("SUPABASE_URL");
+    try {
+      return new URL(/^https?:\/\//.test(raw) ? raw : `https://${raw}`).origin;
+    } catch {
+      return "";
+    }
+  },
   supabaseKey: () => env("SUPABASE_SERVICE_ROLE_KEY"),
   anthropicKey: () => env("ANTHROPIC_API_KEY"),
   anthropicModel: () => env("ANTHROPIC_MODEL") || "claude-sonnet-5-5",
