@@ -161,7 +161,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
     <>
       <header className="qx-top">
         <div className="qx-top-in">
-          <span className="qx-logo" aria-label="TsewangBistaX">TsewangBista<span>X</span></span>
+          <a className="qx-logo" href="https://www.tsewangbista.com" aria-label="TsewangBistaX home">TsewangBista<span>X</span></a>
           {inFlow && <span className={`qx-saved qx-${saved}`} role="status" aria-live="polite">{saved === "saving" ? "Saving..." : saved === "saved" ? "Saved on this device" : ""}</span>}
         </div>
         {inFlow && (

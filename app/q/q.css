@@ -81,3 +81,5 @@
 @media (max-width: 480px) { .qx { font-size: 16px; } .qx-card { padding: 16px; } .qx-nav:not(.qx-stack) { flex-direction: column-reverse; } .qx-nav .qx-btn { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .qx * { transition: none !important; animation: none !important; } }
 .qx-square { border-radius: 6px; } .qx-square i { border-radius: 3px; }
+
+.qx a.qx-logo { color: inherit; text-decoration: none; }
