@@ -31,6 +31,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import LeadCta from "../components/LeadCta";
+import FreePortfolioPopup from "../components/FreePortfolioPopup";
 
 const navItems = ["About", "Skills", "Work", "Services", "Orders", "Contact"];
 
@@ -729,6 +730,8 @@ export default function Home() {
           <ArrowUpRight size={18} />
         </a>
       </footer>
+
+      <FreePortfolioPopup />
     </main>
   );
 }
