@@ -172,3 +172,31 @@ export async function sendEmail(i: MailInput): Promise<{ ok: boolean; detail: st
   }
   return { ok: false, detail };
 }
+
+/** Sends the respondent a thank-you note. Failure here never affects the submission. */
+export async function sendThanks(i: MailInput): Promise<{ ok: boolean; detail: string }> {
+  if (!cfg.resendKey() || !i.profile.email) return { ok: false, detail: "Not configured" };
+  const first = oneLine(i.profile.name.split(" ")[0] || "there");
+  const answered = Object.keys(i.answers).length;
+  const link = (href: string, label: string) => `<a href="${href}" style="color:#b86e00;font-weight:bold;text-decoration:none;">${label}</a>`;
+  const html = `<div style="font-family:${FONT};max-width:560px;margin:auto;color:#111;line-height:1.6">
+<h2 style="margin:0 0 8px">Thank you, ${esc(first)}!</h2>
+<p>Your answers have reached me (${answered} of ${TOTAL_SHORT} questions answered). I truly appreciate the time and thought you gave.</p>
+<p>I may contact you at this email address with a few follow-up questions. If you would like your answers removed, just reply to this email.</p>
+<p style="margin:20px 0 6px;font-weight:bold">Explore more</p>
+<p style="margin:0">${link("https://www.tsewangbista.com", "My portfolio: tsewangbista.com")}<br>
+${link("https://www.tsewangbista.com/services/free-portfolio", "Get a free portfolio website")}<br>
+${link("https://jikmisapartment.tsewangbista.com/", "Jikmis Apartment, Boudha")}</p>
+<p style="margin-top:24px">Warm regards,<br><b>Tsewang Bista</b></p></div>`;
+  const text = `Thank you, ${first}!\n\nYour answers have reached me (${answered} of ${TOTAL_SHORT} questions answered). I may contact you here with follow-up questions. To have your answers removed, just reply to this email.\n\nMy portfolio: https://www.tsewangbista.com\nFree portfolio website: https://www.tsewangbista.com/services/free-portfolio\n\nWarm regards,\nTsewang Bista`;
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${cfg.resendKey()}`, "Content-Type": "application/json", "Idempotency-Key": `qthanks-${i.id}` },
+      body: JSON.stringify({ from: cfg.mailFrom(), to: [i.profile.email], ...(cfg.recipient() ? { reply_to: cfg.recipient() } : {}), subject: "Thank you for completing my questionnaire", html, text })
+    });
+    return r.ok ? { ok: true, detail: "sent" } : { ok: false, detail: `Resend ${r.status}` };
+  } catch {
+    return { ok: false, detail: "Could not reach Resend" };
+  }
+}

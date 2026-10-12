@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { checkAccess } from "@/lib/q/access";
 import { advice } from "@/lib/q/advice";
 import { isOpen } from "@/lib/q/config";
-import { sendEmail } from "@/lib/q/email";
+import { sendEmail, sendThanks } from "@/lib/q/email";
 import { json, limited, notFound, sameOrigin } from "@/lib/q/guard";
 import { countAnswered, normaliseAnswers, submissionSchema } from "@/lib/q/schema";
 import { findByKey, markInviteUsed, saveSubmission, setEmailStatus } from "@/lib/q/store";
@@ -58,6 +58,10 @@ export async function POST(req: Request) {
   });
   const mail = await sendEmail({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel });
   const emailed = mail.ok;
+  if (emailed) {
+    const thanks = await sendThanks({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel });
+    if (!thanks.ok) console.error("[questionnaire] thank-you email not sent:", thanks.detail);
+  }
   if (saved) await setEmailStatus(id, emailed ? "sent" : `failed - ${mail.detail}`);
   if (saved && singleUse && inviteId) await markInviteUsed(inviteId);
 
