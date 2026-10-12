@@ -1,16 +1,5 @@
 /** @type {import('next').NextConfig} */
 
-// "Coming soon" mode: every other page sends visitors back to the home page.
-// Remove these redirects (and restore app/page.tsx) to relaunch the portfolio.
-const hiddenRoutes = [
-  "/chefs-trial-crate",
-  "/lead-flow-sprint",
-  "/proof-sprint",
-  "/thank-you",
-  "/services",
-  "/services/:path*"
-];
-
 const nextConfig = {
   output: "standalone",
   images: {
@@ -33,9 +22,6 @@ const nextConfig = {
       { source: "/q/:path*", headers: privateHeaders },
       { source: "/api/questionnaire/:path*", headers: privateHeaders }
     ];
-  },
-  async redirects() {
-    return hiddenRoutes.map((source) => ({ source, destination: "/", permanent: false }));
   }
 };
 
