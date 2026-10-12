@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Gift, X } from "lucide-react";
 
-const DELAY_MS = 2000;
+const delay = 2000;
 
 /**
  * Small promo card for the free portfolio service. It appears 2 seconds after
