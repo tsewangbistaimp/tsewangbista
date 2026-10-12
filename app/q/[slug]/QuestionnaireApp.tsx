@@ -15,6 +15,15 @@ const uuid = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? cr
 const blankProfile = (): Profile => ({ name: "", field: "", email: "", date: today(), consent: false });
 const hasContent = (a?: Ans) => Boolean(a && (a.answer.trim() || a.choice));
 
+const EXPLORE_LINKS = [
+  { title: "Free Portfolio", text: "Register for a free portfolio website.", href: "https://www.tsewangbista.com/services/free-portfolio" },
+  { title: "Web Development", text: "Websites, dashboards and web apps.", href: "https://www.tsewangbista.com/services/web-development" },
+  { title: "UI/UX Design", text: "Interfaces and product design in Figma.", href: "https://www.tsewangbista.com/services/ui-ux-design" },
+  { title: "AI Marketing Systems", text: "Funnels, content and automation.", href: "https://www.tsewangbista.com/services/ai-marketing-systems" },
+  { title: "Jikmis Apartment", text: "Serviced apartments in Boudha, Kathmandu.", href: "https://jikmisapartment.tsewangbista.com/" },
+  { title: "30-Day Lead Flow Sprint", text: "A done-for-you lead system.", href: "https://www.tsewangbista.com/lead-flow-sprint" }
+];
+
 export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: string; inviteToken: string; gate: "open" | "code" }) {
   const storeKey = `qx3:${slug.slice(0, 10)}:${inviteToken.slice(0, 6)}`;
   const [unlocked, setUnlocked] = useState(gate === "open");
@@ -447,6 +456,20 @@ function Done({ r }: { r: Result }) {
           <ul>{r.tips.map((t, i) => <li key={i}>{t}</li>)}</ul>
         </div>
       )}
+
+      <div className="qx-card qx-explore">
+        <h2 className="qx-h2">Visit my portfolio and explore more</h2>
+        <p className="qx-muted">Thank you again. If you are curious about what I build, these links are for you.</p>
+        <a className="qx-btn qx-primary qx-explore-main" href="https://www.tsewangbista.com" target="_blank" rel="noopener noreferrer">Visit my portfolio: tsewangbista.com</a>
+        <div className="qx-explore-grid">
+          {EXPLORE_LINKS.map((l) => (
+            <a key={l.href} className="qx-explore-link" href={l.href} target="_blank" rel="noopener noreferrer">
+              <strong>{l.title}</strong>
+              <span>{l.text}</span>
+            </a>
+          ))}
+        </div>
+      </div>
 
       <div className="qx-nav qx-stack">
         <button className="qx-btn" onClick={json}>Download my answers (JSON)</button>

@@ -83,3 +83,12 @@
 .qx-square { border-radius: 6px; } .qx-square i { border-radius: 3px; }
 
 .qx a.qx-logo { color: inherit; text-decoration: none; }
+
+.qx-explore { background: #fffaf0; border-color: #f1d9a0; }
+.qx a.qx-explore-main { width: 100%; margin: 12px 0 14px; color: #1b1200; }
+.qx-explore-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.qx a.qx-explore-link { display: block; padding: 12px 14px; background: #fff; border: 1.5px solid #e6dcc3; border-radius: 10px; color: var(--qx-ink); text-decoration: none; }
+.qx a.qx-explore-link:hover { border-color: var(--qx-accent); }
+.qx-explore-link strong { display: block; font-size: 15px; }
+.qx-explore-link span { display: block; margin-top: 3px; font-size: 13px; color: #5b6572; }
+@media (max-width: 480px) { .qx-explore-grid { grid-template-columns: 1fr; } }
