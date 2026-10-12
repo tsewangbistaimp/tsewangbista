@@ -96,3 +96,10 @@ export async function createInvites(
 export async function revokeInvite(id: string, revoked: boolean): Promise<void> {
   await db(`q_invites?id=eq.${id}`, { method: "PATCH", body: JSON.stringify({ revoked }) });
 }
+
+/** Permanently deletes one submission (admin only). Returns true when the database accepted it. */
+export async function deleteSubmission(id: string): Promise<boolean> {
+  if (!hasDb() || !/^[0-9a-fA-F-]{36}$/.test(id)) return false;
+  const r = await db(`q_submissions?id=eq.${encodeURIComponent(id)}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+  return r.ok;
+}

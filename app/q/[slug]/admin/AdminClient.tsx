@@ -42,6 +42,13 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
     );
   }
 
+  async function removeRow(id: string, name: string) {
+    if (!window.confirm(`Delete the submission from "${name}"? This cannot be undone.`)) return;
+    const r = await call({ action: "delete", slug, id });
+    if (r.ok) router.replace(query ? `?q=${encodeURIComponent(query)}` : "?"); else window.alert(r.data.error ?? "Could not delete.");
+    router.refresh();
+  }
+
   const open = rows.find((r) => r.id === openId);
   return (
     <main className="qx-shell qx-wide">
@@ -66,7 +73,10 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
             {rows.map((r) => (
               <tr key={r.id}>
                 <td>{r.name}</td><td>{r.field}</td><td>{r.answered}/{total}</td><td>{r.at.slice(0, 10)}</td><td title={r.status}>{r.status.length > 40 ? `${r.status.slice(0, 40)}...` : r.status}</td>
-                <td><a href={`?id=${r.id}${query ? `&q=${encodeURIComponent(query)}` : ""}`}>Open</a></td>
+                <td>
+                  <a href={`?id=${r.id}${query ? `&q=${encodeURIComponent(query)}` : ""}`}>Open</a>{" "}
+                  <button className="qx-link" style={{ color: "#c0262d" }} onClick={() => removeRow(r.id, r.name)}>Delete</button>
+                </td>
               </tr>
             ))}
             {!rows.length && <tr><td colSpan={6}>No submissions yet.</td></tr>}
@@ -76,7 +86,10 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
 
       {open && (
         <section className="qx-card" aria-label="Submission details">
-          <h2 className="qx-h2">{open.name} &middot; {open.field}</h2>
+          <div className="qx-row-between">
+            <h2 className="qx-h2">{open.name} &middot; {open.field}</h2>
+            <button className="qx-btn" style={{ color: "#c0262d", borderColor: "#c0262d" }} onClick={() => removeRow(open.id, open.name)}>Delete this submission</button>
+          </div>
           {SHORT_QUESTIONS.map((q) => (
             <div key={q.id} className="qx-ans">
               <div className="qx-ans-q"><b>{q.id}</b> {q.text}</div>

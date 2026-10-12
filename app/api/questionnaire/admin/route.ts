@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { buildCsv } from "@/lib/q/email";
 import { cfg, cookieValid, isOpen, newCookie, safeEqual } from "@/lib/q/config";
 import { inviteToken, json, limited, notFound, sameOrigin } from "@/lib/q/guard";
-import { createInvites, listSubmissions, revokeInvite } from "@/lib/q/store";
+import { createInvites, deleteSubmission, listSubmissions, revokeInvite } from "@/lib/q/store";
 
 export const runtime = "nodejs";
 
@@ -53,6 +53,10 @@ export async function POST(req: Request) {
     const res = json({ ok: true });
     res.cookies.delete("q_adm");
     return res;
+  }
+  if (b.action === "delete") {
+    const ok = await deleteSubmission(String(b.id ?? ""));
+    return ok ? json({ ok: true }) : json({ error: "Could not delete this submission." }, 400);
   }
   if (b.action === "revoke") {
     await revokeInvite(String(b.id), b.revoked !== false);
