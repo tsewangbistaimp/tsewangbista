@@ -28,6 +28,17 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const b = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+
+  // Short admin address: sign in with the password only; the private link is revealed after login.
+  if (b.action === "short-login") {
+    if (!sameOrigin(req) || !cfg.slug() || !cfg.adminPassword()) return notFound();
+    if (limited(req, "adm", 6, 10 * 60_000)) return json({ error: "Too many tries." }, 429);
+    if (typeof b.password !== "string" || !safeEqual(b.password, cfg.adminPassword())) return json({ error: "Wrong password." }, 401);
+    const res = json({ ok: true, url: `/q/${cfg.slug()}/admin` });
+    res.cookies.set("q_adm", newCookie("adm", 12), { httpOnly: true, secure: true, sameSite: "strict", path: "/", maxAge: 12 * 3600 });
+    return res;
+  }
+
   if (!sameOrigin(req) || !slugOk(b.slug as string)) return notFound();
 
   if (b.action === "login") {
