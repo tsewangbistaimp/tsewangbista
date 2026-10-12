@@ -4,11 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Gift, X } from "lucide-react";
 
-const MIN_DELAY_MS = 8000;
-const MAX_DELAY_MS = 10000;
+const DELAY_MS = 2000;
 
 /**
- * Small promo card for the free portfolio service. It appears 8–10 seconds after
+ * Small promo card for the free portfolio service. It appears 2 seconds after
  * the page loads and stays hidden once closed. Dismissal lives only in component
  * state on purpose: a page refresh remounts the component and shows it again.
  */
@@ -16,11 +15,9 @@ export default function FreePortfolioPopup() {
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
-  // Start the timer once per page load. The delay is picked at random between
-  // 8 and 10 seconds so it never feels like a fixed, scripted interruption.
+  // Start the timer once per page load.
   useEffect(() => {
-    const delay = MIN_DELAY_MS + Math.random() * (MAX_DELAY_MS - MIN_DELAY_MS);
-    const timer = window.setTimeout(() => setIsVisible(true), delay);
+    const timer = window.setTimeout(() => setIsVisible(true), DELAY_MS);
     return () => window.clearTimeout(timer);
   }, []);
 
