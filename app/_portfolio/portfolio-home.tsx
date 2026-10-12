@@ -327,7 +327,7 @@ export default function Home() {
             Tsewang
             <span>Bista.</span>
           </h1>
-          <p className="hero-role">Full-Stack Developer | UI/UX Designer | AI Marketing</p>
+          <p className="hero-role">Full-Stack Developer | UI/UX Designer | AI Marketing | Small Business Owner</p>
           <p className="hero-text">
             I&apos;m a BSc (Hons) Computing student passionate about building digital products that connect technology,
             business, and user experience.
