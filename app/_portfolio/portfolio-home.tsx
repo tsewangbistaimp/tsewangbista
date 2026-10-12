@@ -47,20 +47,19 @@ const heroServiceBadges = [
 ];
 
 const skills = [
-  "React",
-  "Next.js",
+  "Full-Stack Web Development",
   "Node.js",
-  "JavaScript",
-  "Python",
-  "Java",
-  "SQL",
+  "Tailwind CSS",
   "Figma",
+  "UI/UX Design",
+  "User Experience & Interface Design",
   "AI Marketing",
-  "Meta Ads",
-  "Email Funnels",
-  "E-commerce",
-  "B2B Sales",
-  "Hospitality"
+  "Digital Marketing",
+  "Business Operations",
+  "Connecting Business & Technology",
+  "Learning: Flutter",
+  "Learning: Android Studio",
+  "Learning: Mobile App Development"
 ];
 
 const services = [
@@ -120,6 +119,21 @@ const ventures = [
   }
 ];
 
+const buildingToward = [
+  {
+    icon: MapPin,
+    title: "Lifestyle-Matching Real Estate Platform",
+    tag: "Future project",
+    body: "I'm exploring a real estate platform designed to help people find apartments and properties that match their lifestyles, preferences, budgets, and everyday needs. Rather than focusing only on property listings, the idea is to make property discovery more personalized by considering factors such as location, affordability, amenities, accessibility, and the way people want to live."
+  },
+  {
+    icon: Building2,
+    title: "Complete Apartment Management System",
+    tag: "Future project",
+    body: "Drawing on my experience managing apartment operations, I aim to develop an integrated apartment management system that brings essential workflows into one platform. The vision includes room and booking management, tenant information, payments, income and expense tracking, maintenance requests, reporting, and customer communication. The goal is to make apartment operations more organized, efficient, and easier to manage as a business grows."
+  }
+];
+
 const portfolio = [
   {
     title: "AI Growth Engine",
@@ -146,7 +160,7 @@ const portfolio = [
 ];
 
 const experiences = [
-  "Entrepreneur and business development operator",
+  "Manages apartment and café businesses alongside BSc (Hons) Computing studies",
   "Software and web developer with React, Next.js, Node.js, and SQL",
   "AI marketing specialist for content, funnels, and automation",
   "Hospitality professional across hotel operations and service",
@@ -298,10 +312,10 @@ export default function Home() {
             Tsewang
             <span>Bista.</span>
           </h1>
-          <p className="hero-role">I’m a developer, AI marketer, and entrepreneur focused on turning ideas into practical solutions.</p>
+          <p className="hero-role">Full-Stack Developer | UI/UX Designer | AI Marketing</p>
           <p className="hero-text">
-            I build premium digital experiences, practical growth systems, and business ventures across technology,
-            AI marketing, shoes, Mustang apples, and hospitality.
+            I&apos;m a BSc (Hons) Computing student passionate about building digital products that connect technology,
+            business, and user experience.
           </p>
           <div className="hero-actions">
             <a className="button primary" href="#work">
@@ -353,8 +367,40 @@ export default function Home() {
           <p className="eyebrow">About Me</p>
           <h2>I turn ambition into digital products, growth systems, and real business momentum.</h2>
           <p>
-            I am based in Kathmandu, Nepal and rooted in Mustang. My work connects modern software, AI marketing,
-            design, sales, hospitality, and entrepreneurship into one practical personal brand.
+            I&apos;m a BSc (Hons) Computing student passionate about building digital products that connect technology,
+            business, and user experience. My focus is on transforming ideas into practical, user-centered solutions
+            that solve real-world problems and create meaningful value.
+          </p>
+          <p>
+            My technical interests span full-stack web development, UI/UX design, artificial intelligence, and digital
+            marketing. I work with modern development technologies such as Node.js and Tailwind CSS, use Figma to
+            explore interface design and user experiences, and continuously develop my understanding of building
+            functional, intuitive digital products.
+          </p>
+          <p>
+            Alongside my studies, I manage apartment and café businesses, gaining practical experience in business
+            operations, customer relationships, hospitality, and digital marketing. This experience allows me to
+            understand real business challenges and explore how software, AI, and automation can simplify operations,
+            improve customer experiences, and support sustainable growth.
+          </p>
+          <p>
+            I&apos;m also expanding my development skills into mobile applications, currently learning Flutter and
+            Android Studio to explore cross-platform app development and build solutions that extend beyond the web.
+          </p>
+          <p className="eyebrow">My Approach</p>
+          <p>
+            I believe technology is most valuable when it addresses genuine problems. By combining software
+            development, thoughtful design, AI-driven marketing, and practical business experience, I aim to create
+            digital products that are useful, accessible, and built around real user needs.
+          </p>
+          <p>
+            I&apos;m committed to continuous learning, experimenting with emerging technologies, and developing my
+            skills through practical projects. As I progress in my computing degree, I want to deepen my expertise in
+            full-stack development, mobile applications, AI, and real estate technology.
+          </p>
+          <p>
+            My vision is to bridge the gap between business and technology by building intelligent, user-focused
+            digital solutions that improve how people live, work, and manage their businesses.
           </p>
         </div>
         <div className="about-cards" data-reveal>
@@ -510,6 +556,24 @@ export default function Home() {
               </article>
             );
           })}
+        </div>
+      </section>
+
+      <section className="section-shell venture-section">
+        <div className="section-heading" data-reveal>
+          <p className="eyebrow">What I&apos;m Building Toward</p>
+          <h2>Connecting real estate, technology, and business operations.</h2>
+          <p>My long-term direction is to connect real estate, technology, and business operations through practical digital platforms.</p>
+        </div>
+        <div className="venture-grid">
+          {buildingToward.map(({ icon: Icon, title, tag, body }) => (
+            <article className="glass-card venture-card" key={title} data-reveal>
+              <Icon size={28} />
+              <span>{tag}</span>
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </article>
+          ))}
         </div>
       </section>
 
