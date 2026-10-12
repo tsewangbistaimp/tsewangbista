@@ -123,6 +123,14 @@ const ventures = [
     tag: "Serviced apartments, Boudha",
     body: "Luxury serviced studios and family apartments in Boudha, Kathmandu, with an in-house cafe, 24/7 hot water, kitchen setup, and direct booking support.",
     href: "https://jikmisapartment.tsewangbista.com/"
+  },
+  {
+    icon: Building2,
+    title: "Jikmis Apartment Management System",
+    tag: "Software, apartment operations",
+    body: "A front-desk system I built to run apartment operations: bookings, rooms, guests, finance, reports, and real estate investment tools in one dashboard.",
+    image: "/images/jikmis-system/dashboard.jpg",
+    href: "https://jikmisaptadmin.tsewangbista.com"
   }
 ];
 
@@ -522,10 +530,13 @@ export default function Home() {
           <h2>Technology meets real-world business.</h2>
         </div>
         <div className="venture-grid">
-          {ventures.map(({ icon: Icon, title, tag, body, href }) => {
+          {ventures.map(({ icon: Icon, title, tag, body, href, image }) => {
             const isInternal = href?.startsWith("/");
             const content = (
               <>
+                {image ? (
+                  <Image className="venture-shot" src={image} alt={`${title} screenshot`} width={1680} height={1050} sizes="(max-width: 980px) 100vw, 380px" />
+                ) : null}
                 <Icon size={28} />
                 <span>{tag}</span>
                 <h3>{title}</h3>

@@ -588,6 +588,14 @@ a.venture-card {
   text-decoration: none;
 }
 
+.venture-shot {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  height: auto;
+  margin-bottom: 18px;
+  width: 100%;
+}
+
 a.portfolio-card {
   display: block;
 }
