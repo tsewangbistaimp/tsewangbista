@@ -30,8 +30,7 @@ export const profileSchema = z.object({
     .string()
     .max(200)
     .transform((v) => v.trim())
-    .refine((v) => v === "" || /^[^\s@<>,;:"]+@[^\s@<>,;:"]+\.[^\s@<>,;:"]+$/.test(v), "Please enter a valid email or leave it empty.")
-    .default(""),
+    .refine((v) => /^[^\s@<>,;:"]+@[^\s@<>,;:"]+\.[^\s@<>,;:"]+$/.test(v), "Please enter a valid email address."),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Please choose a valid date."),
   consent: z.literal(true, { errorMap: () => ({ message: "Please tick the consent box to continue." }) })
 });

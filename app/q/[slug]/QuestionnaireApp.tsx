@@ -119,7 +119,8 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
     const e: Record<string, string> = {};
     if (profile.name.trim().length < 2) e.name = "Please enter your full name.";
     if (profile.field.trim().length < 2) e.field = "Please tell me your field of study or work.";
-    if (profile.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email.trim())) e.email = "That email does not look right. You can also leave it empty.";
+    if (!profile.email.trim()) e.email = "Please enter your email address.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email.trim())) e.email = "That email does not look right. Please check it.";
     if (!profile.date) e.date = "Please choose a date.";
     if (!profile.consent) e.consent = "Please tick the box to continue.";
     setErrors(e);
@@ -200,8 +201,8 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
               <Field label="Your field of study or work" required error={errors.field} hint="Write it in your own words, for example dentistry, accounting, teaching, farming, engineering.">
                 <input className="qx-input" value={profile.field} maxLength={160} onChange={(e) => setProfile({ ...profile, field: e.target.value })} />
               </Field>
-              <Field label="Email" error={errors.email} hint="Optional. Only used so I can contact you if you say yes at the end.">
-                <input className="qx-input" type="email" inputMode="email" value={profile.email} maxLength={200} autoComplete="email" onChange={(e) => setProfile({ ...profile, email: e.target.value })} />
+              <Field label="Email" required error={errors.email} hint="Needed so I can contact you with follow-up questions. Only I will see it.">
+                <input className="qx-input" type="email" inputMode="email" required value={profile.email} maxLength={200} autoComplete="email" onChange={(e) => setProfile({ ...profile, email: e.target.value })} />
               </Field>
               <Field label="Date" required error={errors.date}>
                 <input className="qx-input" type="date" value={profile.date} onChange={(e) => setProfile({ ...profile, date: e.target.value })} />
@@ -213,7 +214,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
               {errors.consent && <p className="qx-error" role="alert">{errors.consent}</p>}
             </div>
             <div className="qx-note">
-              <b>Privacy.</b> I collect your name, field, optional email and your answers, only to learn about real problems in different fields. Only I (Tsewang Bista) can see them, and I will keep them for this research project. To remove your answers, just email me. Please do not write real names or private details of patients, clients, customers or colleagues, and no confidential company information.
+              <b>Privacy.</b> I collect your name, field, email and your answers, only to learn about real problems in different fields. Only I (Tsewang Bista) can see them, and I will keep them for this research project. To remove your answers, just email me. Please do not write real names or private details of patients, clients, customers or colleagues, and no confidential company information.
             </div>
             <Nav onBack={() => setScreen("welcome")} onNext={() => { if (validateProfile()) setScreen("s0"); }} nextLabel="Start the questions" />
           </section>
