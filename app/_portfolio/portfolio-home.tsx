@@ -6,6 +6,7 @@ import {
   Building2,
   CheckCircle2,
   Code2,
+  Gift,
   Github,
   Globe2,
   Hotel,
@@ -86,6 +87,12 @@ const services = [
     title: "UI/UX Design",
     body: "Premium interfaces, product flows, Figma design, responsive layouts, and brand-first digital experiences.",
     href: "/services/ui-ux-design"
+  },
+  {
+    icon: Gift,
+    title: "Free Portfolio",
+    body: "Register for a free personal portfolio website. Fill in one simple form and we build it for you.",
+    href: "/services/free-portfolio"
   }
 ];
 
