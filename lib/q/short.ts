@@ -1,4 +1,4 @@
-// The short (5-10 minute) questionnaire: 15 questions in 5 parts.
+// The short (5-10 minute) questionnaire: 15 questions in 5 parts, plus the longer Part 6 (hospitality, real estate and technology).
 export type ShortQuestion = {
   id: string;
   text: string;
@@ -68,6 +68,24 @@ export const SHORT_STEPS: ShortStep[] = [
     questions: [
       t("Q14", "How should your field improve for the next generation, and what should always stay with qualified people?", "Think about tools, teaching, skills and what technology should never replace."),
       s("Q15", "May I contact you again to discuss your answers?", "You can add details in your own words on the next screen if you like.", F4)
+    ]
+  },
+  {
+    key: "hospitality", part: "Part 6", title: "Hospitality Operations, Real Estate, and Technology", color: "#0e7490",
+    intro: "This longer section takes about 20-25 minutes. Please write in your own words, share real-life examples where you can, and add your own ideas. There are no right or wrong answers, and you can skip anything. Please do not use real names or private details.",
+    questions: [
+      t("Q16", "What do you know about hospitality operations, and what does a normal day look like for the people who work in it?", "Think about front desk, housekeeping, kitchen or cafe, guest requests and managers. Share anything you have seen or experienced yourself."),
+      t("Q17", "How are hospitality, real estate and property management connected?", "For example, how a guest stay, a rented apartment and the owner of the building depend on each other."),
+      t("Q18", "What are the most common problems people face when looking for and renting an apartment?", "Think about price, location, trust, paperwork, deposits, finding information and talking to owners. A real example from you or someone you know is very helpful."),
+      t("Q19", "How can technology improve customer service and daily operations in a hotel, cafe or apartment business?", "Think about bookings, payments, messages to guests, cleaning schedules, records and reports. Say what would be easier or faster."),
+      t("Q20", "How could AI, automation and data make hospitality and real estate better?", "For example, answering guest questions, setting fair prices, predicting busy days, or matching people to the right place. Explain in your own words."),
+      t("Q21", "What are the technology challenges and opportunities in your own field of study or work?", "Describe one challenge (for example cost, training or trust) and one opportunity you can see."),
+      t("Q22", "Scenario: A guest arrives late at night, their room is not ready and the front desk is busy. What should the business do, and how could technology help?", "Write the steps you would take, and any tool that would make it smoother."),
+      t("Q23", "Scenario: A person works night shifts, has a limited monthly budget and wants to be close to cafes and public transport. What kind of apartment would you recommend, and what would you ask them first?", "Think about budget, location, daily routine, noise, safety and personal preferences."),
+      t("Q24", "If a website recommended apartments based on a person's lifestyle, what should it ask, and which details matter most?", "For example budget, area, work or study hours, travel time, food, pets, quiet or social, and furniture. Put the most important ones first."),
+      t("Q25", "Scenario: A tenant reports the same maintenance problem again and again (for example no hot water), and the owner is hard to reach. How should this be handled, and what could prevent it next time?", "Think about who should act, how fast, and how a simple app or system could track and fix it."),
+      t("Q26", "What new technology-based ideas or features would you suggest for my platform?", "My platform brings together apartment bookings and management, rooms, guests, finance, reports and a free portfolio service. Any idea is welcome, big or small."),
+      t("Q27", "If you could add one feature to my platform tomorrow, what would it be, who would use it, and what real-life problem would it solve?", "Give one idea in your own words, with a real example if you can.")
     ]
   }
 ];
