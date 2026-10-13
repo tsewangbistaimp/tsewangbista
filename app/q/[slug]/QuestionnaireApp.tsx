@@ -281,7 +281,7 @@ function Welcome({ hasDraft, onStart, onContinue }: { hasDraft: boolean; onStart
   return (
     <section aria-labelledby="w-h">
       <h1 id="w-h" className="qx-h1 qx-hero">Knowledge, Problems and Solutions Questionnaire</h1>
-      <p className="qx-sub">Prepared by Tsewang Bista | 15 quick questions | About 5-10 minutes | No special knowledge needed | Plus Part 6: about 20-25 more minutes</p>
+      <p className="qx-sub">Prepared by Tsewang Bista | 15 quick questions | About 5-10 minutes | No special knowledge needed</p>
       <div className="qx-card">
         <h2 className="qx-h2">Why you are here</h2>
         <p>My name is Tsewang Bista. I am a Computing student. I am asking 10 people from different fields about what they have studied and learned, why it is important, what problems they see, what solutions could help, and how their field can improve for the next generation. Later I will think about how technology might help. Your knowledge is valuable even if you have never thought about technology.</p>
@@ -290,14 +290,14 @@ function Welcome({ hasDraft, onStart, onContinue }: { hasDraft: boolean; onStart
       <div className="qx-card">
         <h2 className="qx-h2">What you will answer</h2>
         <ol className="qx-parts">
-          <li><b>Part 1</b> Knowledge and Study</li><li><b>Part 2</b> Importance</li><li><b>Part 3</b> Problems</li><li><b>Part 4</b> Solutions</li><li><b>Part 5</b> Next Generation</li><li><b>Part 6</b> Hospitality Operations, Real Estate, and Technology</li>
+          <li><b>Part 1</b> Knowledge and Study</li><li><b>Part 2</b> Importance</li><li><b>Part 3</b> Problems</li><li><b>Part 4</b> Solutions</li><li><b>Part 5</b> Next Generation</li>
         </ol>
       </div>
       <div className="qx-card">
         <h2 className="qx-h2">3 easy steps</h2>
         <ol className="qx-steps">
           <li><span>1</span>Write your name, your field and today&rsquo;s date.</li>
-          <li><span>2</span>Answer 15 quick questions. Tap an option or write a few sentences. Read the grey helper text if you are not sure. Part 6 is a longer section with detailed questions.</li>
+          <li><span>2</span>Answer 15 quick questions. Tap an option or write a few sentences. Read the grey helper text if you are not sure.</li>
           <li><span>3</span>Review your answers and press Submit. Your answers reach me automatically.</li>
         </ol>
       </div>

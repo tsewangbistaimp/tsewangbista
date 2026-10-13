@@ -56,7 +56,7 @@ export function buildHtml(i: MailInput): string {
   const answered = Object.keys(i.answers).length;
   const p = i.profile;
   const quick = SHORT_QUICK_IDS.map((id) => SHORT_QUESTIONS.find((q) => q.id === id)!).map((q) => qrow(q.id, q.text, i.answers[q.id])).join("");
-  const roman = ["III", "IV", "V", "VI", "VII", "VIII"];
+  const roman = ["III", "IV", "V", "VI", "VII"];
   const sections = SHORT_STEPS.map((s, idx) => table(bar(`${roman[idx]}. ${s.part}: ${s.title}`) + s.questions.map((q) => qrow(q.id, q.text, i.answers[q.id])).join(""))).join("");
 
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only"><title>Questionnaire response</title></head>
