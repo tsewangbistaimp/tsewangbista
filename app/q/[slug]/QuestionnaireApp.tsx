@@ -193,7 +193,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate, variant = "m
         {/* Honeypot: hidden from people, tempting to bots. */}
         <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="qx-hp" />
 
-        {screen === "welcome" && <Welcome variant={variant} set={set} hasDraft={hasDraft} onStart={() => setScreen("about")} onContinue={() => { try { const d = JSON.parse(localStorage.getItem(storeKey) ?? "{}") as Draft; setScreen(d.screen && d.screen !== "welcome" && d.screen !== "done" ? d.screen : "about"); } catch { setScreen("about"); } }} />}
+        {screen === "welcome" && <Welcome variant={variant} set={set} slug={slug} hasDraft={hasDraft} onStart={() => setScreen("about")} onContinue={() => { try { const d = JSON.parse(localStorage.getItem(storeKey) ?? "{}") as Draft; setScreen(d.screen && d.screen !== "welcome" && d.screen !== "done" ? d.screen : "about"); } catch { setScreen("about"); } }} />}
 
         {screen === "about" && (
           <section aria-labelledby="about-h">
@@ -323,12 +323,17 @@ function WelcomeHospitality({ set, hasDraft, onStart, onContinue }: { set: QSet;
   );
 }
 
-function Welcome({ variant, set, hasDraft, onStart, onContinue }: { variant: Variant; set: QSet; hasDraft: boolean; onStart: () => void; onContinue: () => void }) {
+function Welcome({ variant, set, slug, hasDraft, onStart, onContinue }: { variant: Variant; set: QSet; slug: string; hasDraft: boolean; onStart: () => void; onContinue: () => void }) {
   if (variant === "hospitality") return <WelcomeHospitality set={set} hasDraft={hasDraft} onStart={onStart} onContinue={onContinue} />;
   return (
     <section aria-labelledby="w-h">
       <h1 id="w-h" className="qx-h1 qx-hero">Knowledge, Problems and Solutions Questionnaire</h1>
       <p className="qx-sub">Prepared by Tsewang Bista | 15 quick questions | About 5-10 minutes | No special knowledge needed</p>
+      <div className="qx-card qx-explore">
+        <h2 className="qx-h2">Hospitality, Real Estate and Technology questionnaire</h2>
+        <p className="qx-muted">A separate optional questionnaire: 12 open-ended questions, about 20-25 minutes. Already finished this one? Take that one next.</p>
+        <a className="qx-btn qx-primary qx-explore-main" href={`/q/${slug}/hospitality`}>Open the Hospitality questionnaire</a>
+      </div>
       <div className="qx-card">
         <h2 className="qx-h2">Why you are here</h2>
         <p>My name is Tsewang Bista. I am a Computing student. I am asking 10 people from different fields about what they have studied and learned, why it is important, what problems they see, what solutions could help, and how their field can improve for the next generation. Later I will think about how technology might help. Your knowledge is valuable even if you have never thought about technology.</p>
