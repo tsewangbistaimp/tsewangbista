@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { checkAccess } from "@/lib/q/access";
 import { advice } from "@/lib/q/advice";
-import { isOpen } from "@/lib/q/config";
+import { cfg, isOpen } from "@/lib/q/config";
 import { sendEmail, sendThanks } from "@/lib/q/email";
 import { json, limited, notFound, sameOrigin } from "@/lib/q/guard";
 import { countAnswered, normaliseAnswers, submissionSchema } from "@/lib/q/schema";
@@ -36,11 +36,13 @@ export async function POST(req: Request) {
   if (data.website) return json({ ok: true, id: randomUUID(), tips: [] }); // honeypot: pretend success
 
   // Access control
-  const access = await checkAccess(data.inviteToken);
+  // The hospitality questionnaire is a separate follow-up form: people who already used a single-use invite
+  // for the main one must still be able to open it, so it relies on the private link alone (and the access code, if used).
+  const access = data.variant === "hospitality" && cfg.access() === "token" ? { ok: true, inviteId: null, singleUse: false } as Awaited<ReturnType<typeof checkAccess>> : await checkAccess(data.inviteToken);
   if (!access.ok) return notFound();
   const { inviteId, inviteLabel, singleUse } = access;
 
-  const answers = normaliseAnswers(data.answers);
+  const answers = normaliseAnswers(data.answers, data.variant);
   const tips = advice();
 
   // Idempotency: a double-click or retry returns the first result instead of sending twice.
@@ -54,12 +56,12 @@ export async function POST(req: Request) {
 
   const saved = await saveSubmission({
     id, idempotency_key: data.idempotencyKey, name: data.profile.name, field: data.profile.field, email: data.profile.email,
-    invite_id: inviteId, payload: { profile: data.profile, answers, startedAt: data.startedAt, durationSec }
+    invite_id: inviteId, payload: { profile: data.profile, answers, startedAt: data.startedAt, durationSec, variant: data.variant }
   });
-  const mail = await sendEmail({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel });
+  const mail = await sendEmail({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel, variant: data.variant });
   const emailed = mail.ok;
   if (emailed) {
-    const thanks = await sendThanks({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel });
+    const thanks = await sendThanks({ id, profile: data.profile, answers, submittedAt, durationSec, inviteLabel, variant: data.variant });
     if (!thanks.ok) console.error("[questionnaire] thank-you email not sent:", thanks.detail);
   }
   if (saved) await setEmailStatus(id, emailed ? "sent" : `failed - ${mail.detail}`);

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { cookies, headers } from "next/headers";
 import { cfg, cookieValid, hasDb, safeEqual } from "@/lib/q/config";
 import { listInvites, listSubmissions } from "@/lib/q/store";
+import { SETS, variantOf } from "@/lib/q/sets";
 import { TOTAL_SHORT as TOTAL_QUESTIONS } from "@/lib/q/short";
 import AdminClient from "./AdminClient";
 
@@ -20,10 +21,13 @@ export default async function AdminPage({ params, searchParams }: { params: Prom
   const needle = (sp.q ?? "").toLowerCase();
   const rows = subs
     .filter((s) => !needle || `${s.name} ${s.field}`.toLowerCase().includes(needle))
-    .map((s) => ({ id: s.id, name: s.name, field: s.field, email: s.email, at: s.created_at, status: s.email_status, answered: Object.keys(s.payload.answers).length, answers: s.payload.answers }));
+    .map((s) => {
+      const variant: "main" | "hospitality" = s.payload.variant === "hospitality" || variantOf(s.payload.answers) === "hospitality" ? "hospitality" : "main";
+      return { id: s.id, name: s.name, field: s.field, email: s.email, at: s.created_at, status: s.email_status, answered: Object.keys(s.payload.answers).length, answers: s.payload.answers, variant, total: SETS[variant].total };
+    });
   const inviteRows = invites.map((i) => ({
     id: i.id, label: i.label, revoked: i.revoked, singleUse: i.single_use, used: Boolean(i.used_at),
     link: `${origin}/q/${slug}?t=${i.token}`
   }));
-  return <AdminClient slug={slug} authed rows={rows} invites={inviteRows} total={TOTAL_QUESTIONS} openId={sp.id} query={sp.q ?? ""} db={hasDb()} mode={cfg.access()} />;
+  return <AdminClient slug={slug} authed rows={rows} invites={inviteRows} total={TOTAL_QUESTIONS} openId={sp.id} query={sp.q ?? ""} db={hasDb()} mode={cfg.access()} hospLink={`${origin}/q/${slug}/hospitality`} />;
 }

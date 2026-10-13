@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SHORT_QUESTIONS, SHORT_QUICK_IDS, SHORT_STEPS, TOTAL_SHORT, type ShortQuestion } from "@/lib/q/short";
+import type { ShortQuestion } from "@/lib/q/short";
+import { SETS, type QSet, type Variant } from "@/lib/q/sets";
 import { MAX_ANSWER_CHARS } from "@/lib/q/schema";
 
 type Ans = { answer: string; choice?: string };
@@ -24,8 +25,12 @@ const EXPLORE_LINKS = [
   { title: "30-Day Lead Flow Sprint", text: "A done-for-you lead system.", href: "https://www.tsewangbista.com/lead-flow-sprint" }
 ];
 
-export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: string; inviteToken: string; gate: "open" | "code" }) {
-  const storeKey = `qx3:${slug.slice(0, 10)}:${inviteToken.slice(0, 6)}`;
+export default function QuestionnaireApp({ slug, inviteToken, gate, variant = "main" }: { slug: string; inviteToken: string; gate: "open" | "code"; variant?: Variant }) {
+  const set = SETS[variant];
+  const SHORT_STEPS = set.steps;
+  const SHORT_QUESTIONS = set.questions;
+  const TOTAL_SHORT = set.total;
+  const storeKey = `qx3:${variant === "hospitality" ? "h:" : ""}${slug.slice(0, 10)}:${inviteToken.slice(0, 6)}`;
   const [unlocked, setUnlocked] = useState(gate === "open");
   const [screen, setScreen] = useState("welcome");
   const [profile, setProfile] = useState<Profile>(blankProfile);
@@ -112,7 +117,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
     return () => clearTimeout(t);
   }, [toast]);
 
-  const answeredCount = useMemo(() => SHORT_QUESTIONS.filter((q) => hasContent(answers[q.id])).length, [answers]);
+  const answeredCount = useMemo(() => SHORT_QUESTIONS.filter((q) => hasContent(answers[q.id])).length, [answers, SHORT_QUESTIONS]);
   const setAns = (id: string, patch: Partial<Ans>) => setAnswers((a) => ({ ...a, [id]: { ...(a[id] ?? { answer: "" }), ...patch } }));
 
   function validateProfile(): boolean {
@@ -140,7 +145,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
     }
     try {
       const payload = {
-        idempotencyKey: key, startedAt, inviteToken: inviteToken || undefined, website: "",
+        idempotencyKey: key, startedAt, inviteToken: inviteToken || undefined, website: "", variant,
         profile: { ...profile, name: profile.name.trim(), field: profile.field.trim(), email: profile.email.trim() },
         answers: Object.fromEntries(Object.entries(answers).filter(([, v]) => hasContent(v)))
       };
@@ -188,7 +193,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
         {/* Honeypot: hidden from people, tempting to bots. */}
         <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="qx-hp" />
 
-        {screen === "welcome" && <Welcome hasDraft={hasDraft} onStart={() => setScreen("about")} onContinue={() => { try { const d = JSON.parse(localStorage.getItem(storeKey) ?? "{}") as Draft; setScreen(d.screen && d.screen !== "welcome" && d.screen !== "done" ? d.screen : "about"); } catch { setScreen("about"); } }} />}
+        {screen === "welcome" && <Welcome variant={variant} set={set} hasDraft={hasDraft} onStart={() => setScreen("about")} onContinue={() => { try { const d = JSON.parse(localStorage.getItem(storeKey) ?? "{}") as Draft; setScreen(d.screen && d.screen !== "welcome" && d.screen !== "done" ? d.screen : "about"); } catch { setScreen("about"); } }} />}
 
         {screen === "about" && (
           <section aria-labelledby="about-h">
@@ -224,7 +229,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
           const s = SHORT_STEPS[stepIndex];
           return (
             <section aria-labelledby="step-h">
-              <p className="qx-part" style={{ color: s.color }}>{s.part} of 5</p>
+              <p className="qx-part" style={{ color: s.color }}>{s.part} of {SHORT_STEPS.length}</p>
               <h1 id="step-h" className="qx-h1">{s.title}</h1>
               <p className="qx-lead">{s.intro}</p>
               {s.questions.map((q) => (
@@ -254,7 +259,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
                   const a = answers[q.id];
                   return (
                     <div className="qx-rev" key={q.id}>
-                      <div className="qx-rev-q"><span className="qx-badge" style={{ background: s.color }}>{q.id.replace("Q", "")}</span> {q.text}</div>
+                      <div className="qx-rev-q"><span className="qx-badge" style={{ background: s.color }}>{q.id.replace(/^[A-Z]/, "")}</span> {q.text}</div>
                       {hasContent(a) ? <p className="qx-rev-a">{a.choice && <em>[{a.choice}] </em>}{a.answer}</p> : <p className="qx-muted">Skipped</p>}
                     </div>
                   );
@@ -269,7 +274,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
           </section>
         )}
 
-        {screen === "done" && result && <Done r={result} />}
+        {screen === "done" && result && <Done r={result} slug={slug} set={set} />}
       </main>
 
       {toast && <div className="qx-toast" role="status">{toast}</div>}
@@ -277,7 +282,49 @@ export default function QuestionnaireApp({ slug, inviteToken, gate }: { slug: st
   );
 }
 
-function Welcome({ hasDraft, onStart, onContinue }: { hasDraft: boolean; onStart: () => void; onContinue: () => void }) {
+function WelcomeHospitality({ set, hasDraft, onStart, onContinue }: { set: QSet; hasDraft: boolean; onStart: () => void; onContinue: () => void }) {
+  return (
+    <section aria-labelledby="w-h">
+      <h1 id="w-h" className="qx-h1 qx-hero">Hospitality Operations, Real Estate, and Technology Questionnaire</h1>
+      <p className="qx-sub">Prepared by Tsewang Bista | {set.total} open-ended questions | About 20-25 minutes | No special knowledge needed</p>
+      <div className="qx-card">
+        <h2 className="qx-h2">Why you are here</h2>
+        <p>My name is Tsewang Bista. I am a Computing student and I run apartment and cafe businesses. I am asking people about hospitality, finding and renting apartments, and how technology, AI and automation could make them better. Your real-life examples and your own ideas will help me improve my platform and build useful tools.</p>
+        <p className="qx-muted">You can save and finish later. Your answers stay on this device until you submit.</p>
+      </div>
+      <div className="qx-card">
+        <h2 className="qx-h2">What you will answer</h2>
+        <ol className="qx-parts">
+          {set.steps.map((st) => <li key={st.key}><b>{st.part}</b> {st.title}</li>)}
+        </ol>
+      </div>
+      <div className="qx-card">
+        <h2 className="qx-h2">3 easy steps</h2>
+        <ol className="qx-steps">
+          <li><span>1</span>Write your name, your field and today&rsquo;s date.</li>
+          <li><span>2</span>Answer the questions in your own words. Real examples and your own ideas are the most useful. Read the grey helper text if you are not sure.</li>
+          <li><span>3</span>Review your answers and press Submit. Your answers reach me automatically.</li>
+        </ol>
+      </div>
+      <div className="qx-card">
+        <h2 className="qx-h2">Rules</h2>
+        <ul className="qx-rules">
+          <li>There are no right or wrong answers. An honest answer is better than a perfect answer.</li>
+          <li>You can write a few sentences or a full paragraph. A little detail helps me a lot.</li>
+          <li>If you do not know an answer or do not want to answer, skip it.</li>
+          <li>Do not write real names or private details of guests, tenants, customers or colleagues.</li>
+        </ul>
+      </div>
+      <div className="qx-nav qx-stack">
+        {hasDraft && <button className="qx-btn qx-big" onClick={onContinue}>Continue where I left off</button>}
+        <button className="qx-btn qx-primary qx-big" onClick={onStart}>{hasDraft ? "Start from About you" : "Start"}</button>
+      </div>
+    </section>
+  );
+}
+
+function Welcome({ variant, set, hasDraft, onStart, onContinue }: { variant: Variant; set: QSet; hasDraft: boolean; onStart: () => void; onContinue: () => void }) {
+  if (variant === "hospitality") return <WelcomeHospitality set={set} hasDraft={hasDraft} onStart={onStart} onContinue={onContinue} />;
   return (
     <section aria-labelledby="w-h">
       <h1 id="w-h" className="qx-h1 qx-hero">Knowledge, Problems and Solutions Questionnaire</h1>
@@ -406,7 +453,11 @@ function CodeGate({ slug, onDone }: { slug: string; onDone: () => void }) {
   );
 }
 
-function Done({ r }: { r: Result }) {
+function Done({ r, slug, set }: { r: Result; slug: string; set: QSet }) {
+  const SHORT_STEPS = set.steps;
+  const SHORT_QUESTIONS = set.questions;
+  const SHORT_QUICK_IDS = set.quick;
+  const TOTAL_SHORT = set.total;
   const excerpt = (s: string) => (s.length > 280 ? `${s.slice(0, 280).trim()}...` : s);
   const answered = SHORT_QUESTIONS.filter((q) => hasContent(r.answers[q.id])).length;
   const download = (name: string, mime: string, body: string) => {
@@ -455,6 +506,14 @@ function Done({ r }: { r: Result }) {
           <h2 className="qx-h2">Some advice to take further</h2>
           <p className="qx-muted">A few practical ideas to take further.</p>
           <ul>{r.tips.map((t, i) => <li key={i}>{t}</li>)}</ul>
+        </div>
+      )}
+
+      {set.variant === "main" && (
+        <div className="qx-card qx-explore">
+          <h2 className="qx-h2">One more optional questionnaire</h2>
+          <p className="qx-muted">Hospitality Operations, Real Estate, and Technology: 12 open-ended questions, about 20-25 minutes. These are new questions, so your earlier answers stay as they are.</p>
+          <a className="qx-btn qx-primary qx-explore-main" href={`/q/${slug}/hospitality`}>Start the Hospitality questionnaire</a>
         </div>
       )}
 

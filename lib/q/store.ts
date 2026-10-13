@@ -5,7 +5,7 @@ import type { Answers, Profile } from "./schema";
 export type InviteRow = { id: string; token: string; label: string; revoked: boolean; single_use: boolean; used_at: string | null; created_at: string };
 export type SubmissionRow = {
   id: string; created_at: string; name: string; field: string; email: string; invite_id: string | null;
-  email_status: string; payload: { profile: Profile; answers: Answers; startedAt?: string; durationSec?: number };
+  email_status: string; payload: { profile: Profile; answers: Answers; startedAt?: string; durationSec?: number; variant?: string };
 };
 
 async function db(path: string, init: RequestInit = {}): Promise<Response> {

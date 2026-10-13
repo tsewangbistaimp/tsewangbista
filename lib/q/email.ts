@@ -1,7 +1,7 @@
 // Builds the submission email (HTML + plain text + JSON/CSV attachments) and sends it with Resend.
 // The HTML mirrors a printed research form: bordered tables, light-blue section bars, label/value rows.
 import { cfg } from "./config";
-import { SHORT_QUESTIONS, SHORT_QUICK_IDS, SHORT_STEPS, TOTAL_SHORT } from "./short";
+import { SETS, variantOf, type Variant } from "./sets";
 import type { Answers, Profile } from "./schema";
 
 export type MailInput = {
@@ -11,6 +11,7 @@ export type MailInput = {
   submittedAt: Date;
   durationSec?: number;
   inviteLabel?: string;
+  variant?: Variant;
 };
 
 export const esc = (s: string) =>
@@ -31,7 +32,7 @@ export function duration(sec?: number): string {
 
 export function subjectFor(i: MailInput): string {
   const day = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", day: "2-digit", month: "short", year: "numeric" }).format(i.submittedAt);
-  return `[Research Questionnaire] ${oneLine(i.profile.name)} | ${oneLine(i.profile.field)} | ${day}`;
+  return `[${SETS[i.variant ?? "main"].label}] ${oneLine(i.profile.name)} | ${oneLine(i.profile.field)} | ${day}`;
 }
 
 const BORDER = "1px solid #222222";
@@ -55,16 +56,17 @@ const table = (inner: string) => `<table role="presentation" width="100%" cellsp
 export function buildHtml(i: MailInput): string {
   const answered = Object.keys(i.answers).length;
   const p = i.profile;
-  const quick = SHORT_QUICK_IDS.map((id) => SHORT_QUESTIONS.find((q) => q.id === id)!).map((q) => qrow(q.id, q.text, i.answers[q.id])).join("");
+  const set = SETS[i.variant ?? "main"]; const TOTAL_SHORT = set.total;
+  const quick = set.quick.map((id) => set.questions.find((q) => q.id === id)!).map((q) => qrow(q.id, q.text, i.answers[q.id])).join("");
   const roman = ["III", "IV", "V", "VI", "VII"];
-  const sections = SHORT_STEPS.map((s, idx) => table(bar(`${roman[idx]}. ${s.part}: ${s.title}`) + s.questions.map((q) => qrow(q.id, q.text, i.answers[q.id])).join(""))).join("");
+  const sections = set.steps.map((s, idx) => table(bar(`${roman[idx]}. ${s.part}: ${s.title}`) + s.questions.map((q) => qrow(q.id, q.text, i.answers[q.id])).join(""))).join("");
 
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only"><title>Questionnaire response</title></head>
 <body style="margin:0;padding:0;background:#eef1f6;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#eef1f6;"><tr><td align="center" style="padding:16px 8px;">
 <table role="presentation" width="680" cellspacing="0" cellpadding="0" style="width:100%;max-width:680px;background:#ffffff;border:${BORDER};"><tr><td style="padding:18px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;"><tr>
-<td style="vertical-align:top;font:bold 18px ${FONT};color:#10233f;padding-right:10px;">Knowledge, Problems and Solutions<br><span style="font:13px ${FONT};color:#555;">Research Questionnaire &middot; Tsewang Bista</span></td>
+<td style="vertical-align:top;font:bold 18px ${FONT};color:#10233f;padding-right:10px;">${i.variant === "hospitality" ? "Hospitality Operations, Real Estate, and Technology" : "Knowledge, Problems and Solutions"}<br><span style="font:13px ${FONT};color:#555;">${set.label} &middot; Tsewang Bista</span></td>
 <td width="44%" style="vertical-align:top;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
 <tr><td style="border:${BORDER};padding:5px 8px;font:bold 12px ${FONT};">Form No.: RQ-02</td></tr>
 <tr><td style="border:${BORDER};padding:5px 8px;font:12px ${FONT};word-break:break-all;"><b>Submission ID:</b> ${esc(i.id)}</td></tr>
@@ -84,13 +86,14 @@ ${sections}
 type Item = { id: string; section: string; question: string; choice: string; answer: string };
 
 /** Flat list of every question, used by CSV, JSON and plain text. */
-export function items(a: Answers): Item[] {
-  return SHORT_STEPS.flatMap((s) =>
+export function items(a: Answers, variant: Variant = variantOf(a)): Item[] {
+  return SETS[variant].steps.flatMap((s) =>
     s.questions.map((q) => ({ id: q.id, section: `${s.part}: ${s.title}`, question: q.text, choice: a[q.id]?.choice ?? "", answer: a[q.id]?.answer ?? "" }))
   );
 }
 
 export function buildText(i: MailInput): string {
+  const set = SETS[i.variant ?? "main"]; const TOTAL_SHORT = set.total;
   const answered = Object.keys(i.answers).length;
   const L: string[] = [
     "RESPONDENT'S ANSWER FORM", "========================",
@@ -100,8 +103,8 @@ export function buildText(i: MailInput): string {
     `Submission ID: ${i.id}`, "", "QUICK VIEW", "----------"
   ];
   const fmt = (x: Item) => [`${x.id} | ${x.question}`, x.answer || x.choice ? `${x.choice ? `[Quick choice: ${x.choice}] ` : ""}${x.answer}` : "Skipped", ""];
-  const all = items(i.answers);
-  for (const id of SHORT_QUICK_IDS) L.push(...fmt(all.find((x) => x.id === id)!));
+  const all = items(i.answers, set.variant);
+  for (const id of set.quick) L.push(...fmt(all.find((x) => x.id === id)!));
   let last = "";
   for (const x of all) {
     if (x.section !== last) { last = x.section; L.push(x.section.toUpperCase(), "-".repeat(30)); }
@@ -132,7 +135,7 @@ export function buildCsv(rows: { respondent?: string; field?: string; date?: str
 export function buildJson(i: MailInput): string {
   return JSON.stringify(
     { id: i.id, submittedAt: i.submittedAt.toISOString(), durationSec: i.durationSec ?? null, profile: i.profile,
-      answers: items(i.answers).map((x) => ({ id: x.id, section: x.section, question: x.question, quickChoice: x.choice || null, answer: x.answer || null })) },
+      answers: items(i.answers, i.variant ?? variantOf(i.answers)).map((x) => ({ id: x.id, section: x.section, question: x.question, quickChoice: x.choice || null, answer: x.answer || null })) },
     null, 2
   );
 }
@@ -176,13 +179,16 @@ export async function sendEmail(i: MailInput): Promise<{ ok: boolean; detail: st
 /** Sends the respondent a thank-you note. Failure here never affects the submission. */
 export async function sendThanks(i: MailInput): Promise<{ ok: boolean; detail: string }> {
   if (!cfg.resendKey() || !i.profile.email) return { ok: false, detail: "Not configured" };
+  const set = SETS[i.variant ?? "main"]; const TOTAL_SHORT = set.total;
   const first = oneLine(i.profile.name.split(" ")[0] || "there");
   const answered = Object.keys(i.answers).length;
+  const hospLink = i.variant !== "hospitality" && cfg.slug() ? `${(cfg.siteUrl() || "https://www.tsewangbista.com").replace(/\/$/, "")}/q/${cfg.slug()}/hospitality` : "";
   const link = (href: string, label: string) => `<a href="${href}" style="color:#b86e00;font-weight:bold;text-decoration:none;">${label}</a>`;
   const html = `<div style="font-family:${FONT};max-width:560px;margin:auto;color:#111;line-height:1.6">
 <h2 style="margin:0 0 8px">Thank you, ${esc(first)}!</h2>
 <p>Your answers have reached me (${answered} of ${TOTAL_SHORT} questions answered). I truly appreciate the time and thought you gave.</p>
 <p>I may contact you at this email address with a few follow-up questions. If you would like your answers removed, just reply to this email.</p>
+${hospLink ? `<p style="margin:18px 0 0">One more optional questionnaire (about 20-25 minutes): ${link(hospLink, "Hospitality Operations, Real Estate, and Technology")}</p>` : ""}
 <p style="margin:20px 0 6px;font-weight:bold">Explore more</p>
 <p style="margin:0">${link("https://www.tsewangbista.com", "My portfolio: tsewangbista.com")}<br>
 ${link("https://www.tsewangbista.com/services/free-portfolio", "Get a free portfolio website")}<br>

@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { SHORT_QUESTIONS } from "@/lib/q/short";
+import { SETS } from "@/lib/q/sets";
 
-type Row = { id: string; name: string; field: string; email: string; at: string; status: string; answered: number; answers: Record<string, { answer: string; choice?: string; source?: string }> };
+type Row = { id: string; name: string; field: string; email: string; at: string; status: string; answered: number; variant?: "main" | "hospitality"; total?: number; answers: Record<string, { answer: string; choice?: string; source?: string }> };
 type Invite = { id: string; label: string; revoked: boolean; singleUse: boolean; used: boolean; link: string };
 
 type Props = {
-  slug: string; authed: boolean; rows?: Row[]; invites?: Invite[]; total?: number; openId?: string; query?: string; db?: boolean; mode?: string;
+  slug: string; authed: boolean; rows?: Row[]; invites?: Invite[]; total?: number; openId?: string; query?: string; db?: boolean; mode?: string; hospLink?: string;
 };
 
 async function call(body: Record<string, unknown>) {
@@ -16,7 +16,7 @@ async function call(body: Record<string, unknown>) {
   return { ok: r.ok, data: (await r.json().catch(() => ({}))) as { error?: string } };
 }
 
-export default function AdminClient({ slug, authed, rows = [], invites = [], total = 57, openId, query = "", db = false, mode = "none" }: Props) {
+export default function AdminClient({ slug, authed, rows = [], invites = [], total = 57, openId, query = "", db = false, mode = "none", hospLink = "" }: Props) {
   const router = useRouter();
   const [pw, setPw] = useState("");
   const [msg, setMsg] = useState("");
@@ -59,6 +59,12 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
           <button className="qx-btn" onClick={async () => { await call({ action: "logout", slug }); router.refresh(); }}>Sign out</button>
         </div>
       </div>
+      {hospLink && (
+        <div className="qx-note">
+          <b>Hospitality questionnaire link</b> (share it with people who already finished the first one): <a href={hospLink}>{hospLink}</a>{" "}
+          <button className="qx-link" onClick={async () => { try { await navigator.clipboard.writeText(hospLink); } catch { /* ignore */ } }}>Copy</button>
+        </div>
+      )}
       {!db && <p className="qx-note">No database connected, so nothing is listed here. Answers still arrive by email.</p>}
 
       <form className="qx-search" method="get">
@@ -68,18 +74,18 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
 
       <div className="qx-table-wrap">
         <table className="qx-table">
-          <thead><tr><th>Name</th><th>Field</th><th>Answered</th><th>Date</th><th>Email status</th><th /></tr></thead>
+          <thead><tr><th>Name</th><th>Field</th><th>Form</th><th>Answered</th><th>Date</th><th>Email status</th><th /></tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
-                <td>{r.name}</td><td>{r.field}</td><td>{r.answered}/{total}</td><td>{r.at.slice(0, 10)}</td><td title={r.status}>{r.status.length > 40 ? `${r.status.slice(0, 40)}...` : r.status}</td>
+                <td>{r.name}</td><td>{r.field}</td><td>{r.variant === "hospitality" ? "Hospitality" : "Research"}</td><td>{r.answered}/{r.total ?? total}</td><td>{r.at.slice(0, 10)}</td><td title={r.status}>{r.status.length > 40 ? `${r.status.slice(0, 40)}...` : r.status}</td>
                 <td>
                   <a href={`?id=${r.id}${query ? `&q=${encodeURIComponent(query)}` : ""}`}>Open</a>{" "}
                   <button className="qx-link" style={{ color: "#c0262d" }} onClick={() => removeRow(r.id, r.name)}>Delete</button>
                 </td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={6}>No submissions yet.</td></tr>}
+            {!rows.length && <tr><td colSpan={7}>No submissions yet.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -90,7 +96,7 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
             <h2 className="qx-h2">{open.name} &middot; {open.field}</h2>
             <button className="qx-btn" style={{ color: "#c0262d", borderColor: "#c0262d" }} onClick={() => removeRow(open.id, open.name)}>Delete this submission</button>
           </div>
-          {SHORT_QUESTIONS.map((q) => (
+          {SETS[open.variant ?? "main"].questions.map((q) => (
             <div key={q.id} className="qx-ans">
               <div className="qx-ans-q"><b>{q.id}</b> {q.text}</div>
               {open.answers[q.id] ? <p className="qx-ans-a">{open.answers[q.id].choice && <em>[{open.answers[q.id].choice}] </em>}{open.answers[q.id].answer}</p> : <p className="qx-muted">Skipped</p>}

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SHORT_IDS, SHORT_QUESTIONS } from "./short";
+import { ALL_IDS, SETS, type Variant } from "./sets";
 
 export const MAX_ANSWER_CHARS = 5000;
 
@@ -43,7 +43,11 @@ export const submissionSchema = z.object({
   profile: profileSchema,
   answers: z
     .record(answerSchema)
-    .refine((r) => Object.keys(r).every((k) => SHORT_IDS.includes(k)), "Unknown question id.")
+    .refine((r) => Object.keys(r).every((k) => ALL_IDS.includes(k)), "Unknown question id."),
+  variant: z.enum(["main", "hospitality"]).default("main")
+}).superRefine((v, ctx) => {
+  const ok = SETS[v.variant].ids;
+  if (!Object.keys(v.answers).every((k) => ok.includes(k))) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Unknown question id.", path: ["answers"] });
 });
 
 export type Profile = z.infer<typeof profileSchema>;
@@ -51,9 +55,9 @@ export type Submission = z.infer<typeof submissionSchema>;
 export type Answers = Submission["answers"];
 
 /** Drop empty answers and invalid quick-choice values so only real data is stored/sent. */
-export function normaliseAnswers(a: Answers): Answers {
+export function normaliseAnswers(a: Answers, variant: Variant = "main"): Answers {
   const out: Answers = {};
-  for (const q of SHORT_QUESTIONS) {
+  for (const q of SETS[variant].questions) {
     const v = a[q.id];
     if (!v) continue;
     let choice: string | undefined;
