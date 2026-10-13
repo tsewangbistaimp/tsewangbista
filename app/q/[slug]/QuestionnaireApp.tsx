@@ -221,6 +221,13 @@ export default function QuestionnaireApp({ slug, inviteToken, gate, variant = "m
             <div className="qx-note">
               <b>Privacy.</b> I collect your name, field, email and your answers, only to learn about real problems in different fields. Only I (Tsewang Bista) can see them, and I will keep them for this research project. To remove your answers, just email me. Please do not write real names or private details of patients, clients, customers or colleagues, and no confidential company information.
             </div>
+            {variant === "main" && (
+              <div className="qx-card qx-explore">
+                <h2 className="qx-h2">Hospitality, Real Estate and Technology questionnaire</h2>
+                <p className="qx-muted">A separate optional questionnaire: 12 open-ended questions, about 20-25 minutes. You can open it now or after this one.</p>
+                <a className="qx-btn qx-primary qx-explore-main" href={`/q/${slug}/hospitality`}>Open the Hospitality questionnaire</a>
+              </div>
+            )}
             <Nav onBack={() => setScreen("welcome")} onNext={() => { if (validateProfile()) setScreen("s0"); }} nextLabel="Start the questions" />
           </section>
         )}
@@ -329,11 +336,6 @@ function Welcome({ variant, set, slug, hasDraft, onStart, onContinue }: { varian
     <section aria-labelledby="w-h">
       <h1 id="w-h" className="qx-h1 qx-hero">Knowledge, Problems and Solutions Questionnaire</h1>
       <p className="qx-sub">Prepared by Tsewang Bista | 15 quick questions | About 5-10 minutes | No special knowledge needed</p>
-      <div className="qx-card qx-explore">
-        <h2 className="qx-h2">Hospitality, Real Estate and Technology questionnaire</h2>
-        <p className="qx-muted">A separate optional questionnaire: 12 open-ended questions, about 20-25 minutes. Already finished this one? Take that one next.</p>
-        <a className="qx-btn qx-primary qx-explore-main" href={`/q/${slug}/hospitality`}>Open the Hospitality questionnaire</a>
-      </div>
       <div className="qx-card">
         <h2 className="qx-h2">Why you are here</h2>
         <p>My name is Tsewang Bista. I am a Computing student. I am asking 10 people from different fields about what they have studied and learned, why it is important, what problems they see, what solutions could help, and how their field can improve for the next generation. Later I will think about how technology might help. Your knowledge is valuable even if you have never thought about technology.</p>
@@ -370,6 +372,11 @@ function Welcome({ variant, set, slug, hasDraft, onStart, onContinue }: { varian
         <div className="qx-ex qx-weak"><b>Not very helpful</b><p>&ldquo;Transport is bad.&rdquo;</p></div>
         <div className="qx-ex qx-good"><b>Helpful answer</b><p>&ldquo;In my town there is no fixed time for buses. Office workers wait 20-30 minutes every morning and arrive late. Some pay for a taxi because they cannot wait. They do not know when to leave home.&rdquo;</p></div>
         <p className="qx-muted">This example is from the transport field. Your answers should come from your own field.</p>
+      </div>
+      <div className="qx-card qx-explore">
+        <h2 className="qx-h2">Hospitality, Real Estate and Technology questionnaire</h2>
+        <p className="qx-muted">A separate optional questionnaire: 12 open-ended questions, about 20-25 minutes. Already finished this one? Take that one next.</p>
+        <a className="qx-btn qx-primary qx-explore-main" href={`/q/${slug}/hospitality`}>Open the Hospitality questionnaire</a>
       </div>
       <div className="qx-nav qx-stack">
         {hasDraft && <button className="qx-btn qx-big" onClick={onContinue}>Continue where I left off</button>}
