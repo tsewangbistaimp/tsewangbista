@@ -44,7 +44,7 @@ export const submissionSchema = z.object({
   answers: z
     .record(answerSchema)
     .refine((r) => Object.keys(r).every((k) => ALL_IDS.includes(k)), "Unknown question id."),
-  variant: z.enum(["main", "hospitality"]).default("main")
+  variant: z.enum(["main", "hospitality", "global_tourist", "tour_guide"]).default("main")
 }).superRefine((v, ctx) => {
   const ok = SETS[v.variant].ids;
   if (!Object.keys(v.answers).every((k) => ok.includes(k))) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Unknown question id.", path: ["answers"] });

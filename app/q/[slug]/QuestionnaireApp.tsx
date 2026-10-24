@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ShortQuestion } from "@/lib/q/short";
 import { SETS, type QSet, type Variant } from "@/lib/q/sets";
+import QuestionnaireCards from "./QuestionnaireCards";
 import { MAX_ANSWER_CHARS } from "@/lib/q/schema";
 
 type Ans = { answer: string; choice?: string };
@@ -203,7 +204,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate, variant = "m
               <Field label="Full name" required error={errors.name}>
                 <input className="qx-input" value={profile.name} maxLength={120} autoComplete="name" onChange={(e) => setProfile({ ...profile, name: e.target.value })} />
               </Field>
-              <Field label="Your field of study or work" required error={errors.field} hint="Write it in your own words, for example dentistry, accounting, teaching, farming, engineering.">
+              <Field label={set.fieldLabel ?? "Your field of study or work"} required error={errors.field} hint={set.fieldHint ?? "Write it in your own words, for example dentistry, accounting, teaching, farming, engineering."}>
                 <input className="qx-input" value={profile.field} maxLength={160} onChange={(e) => setProfile({ ...profile, field: e.target.value })} />
               </Field>
               <Field label="Email" required error={errors.email} hint="Needed so I can contact you with follow-up questions. Only I will see it.">
@@ -221,13 +222,7 @@ export default function QuestionnaireApp({ slug, inviteToken, gate, variant = "m
             <div className="qx-note">
               <b>Privacy.</b> I collect your name, field, email and your answers, only to learn about real problems in different fields. Only I (Tsewang Bista) can see them, and I will keep them for this research project. To remove your answers, just email me. Please do not write real names or private details of patients, clients, customers or colleagues, and no confidential company information.
             </div>
-            {variant === "main" && (
-              <div className="qx-card qx-explore">
-                <h2 className="qx-h2">Hospitality, Real Estate and Technology questionnaire</h2>
-                <p className="qx-muted">A separate optional questionnaire: 12 open-ended questions, about 20-25 minutes. You can open it now or after this one.</p>
-                <a className="qx-btn qx-primary qx-explore-main" href={`/q/${slug}/hospitality`}>Open the Hospitality questionnaire</a>
-              </div>
-            )}
+            {variant === "main" && <QuestionnaireCards slug={slug} current="main" />}
             <Nav onBack={() => setScreen("welcome")} onNext={() => { if (validateProfile()) setScreen("s0"); }} nextLabel="Start the questions" />
           </section>
         )}
@@ -330,8 +325,46 @@ function WelcomeHospitality({ set, hasDraft, onStart, onContinue }: { set: QSet;
   );
 }
 
+function WelcomeForm({ set, hasDraft, onStart, onContinue }: { set: QSet; hasDraft: boolean; onStart: () => void; onContinue: () => void }) {
+  const w = set.welcome!;
+  return (
+    <section aria-labelledby="w-h">
+      <h1 id="w-h" className="qx-h1 qx-hero">{w.title}</h1>
+      <p className="qx-sub">{w.sub}</p>
+      <div className="qx-card">
+        <h2 className="qx-h2">Why you are here</h2>
+        {w.why.map((para) => <p key={para}>{para}</p>)}
+        <p className="qx-muted">You can save and finish later. Your answers stay on this device until you submit.</p>
+      </div>
+      <div className="qx-card">
+        <h2 className="qx-h2">What you will answer</h2>
+        <ol className="qx-parts">
+          {set.steps.map((st) => <li key={st.key}><b>{st.part}</b> {st.title}</li>)}
+        </ol>
+      </div>
+      <div className="qx-card">
+        <h2 className="qx-h2">3 easy steps</h2>
+        <ol className="qx-steps">
+          <li><span>1</span>Write your name, what you do and today&rsquo;s date.</li>
+          <li><span>2</span>{w.step2}</li>
+          <li><span>3</span>Review your answers and press Submit. Your answers reach me automatically.</li>
+        </ol>
+      </div>
+      <div className="qx-card">
+        <h2 className="qx-h2">Rules</h2>
+        <ul className="qx-rules">{w.rules.map((r) => <li key={r}>{r}</li>)}</ul>
+      </div>
+      <div className="qx-nav qx-stack">
+        {hasDraft && <button className="qx-btn qx-big" onClick={onContinue}>Continue where I left off</button>}
+        <button className="qx-btn qx-primary qx-big" onClick={onStart}>{hasDraft ? "Start from About you" : "Start"}</button>
+      </div>
+    </section>
+  );
+}
+
 function Welcome({ variant, set, slug, hasDraft, onStart, onContinue }: { variant: Variant; set: QSet; slug: string; hasDraft: boolean; onStart: () => void; onContinue: () => void }) {
   if (variant === "hospitality") return <WelcomeHospitality set={set} hasDraft={hasDraft} onStart={onStart} onContinue={onContinue} />;
+  if (variant !== "main") return <WelcomeForm set={set} hasDraft={hasDraft} onStart={onStart} onContinue={onContinue} />;
   return (
     <section aria-labelledby="w-h">
       <h1 id="w-h" className="qx-h1 qx-hero">Knowledge, Problems and Solutions Questionnaire</h1>
@@ -373,11 +406,7 @@ function Welcome({ variant, set, slug, hasDraft, onStart, onContinue }: { varian
         <div className="qx-ex qx-good"><b>Helpful answer</b><p>&ldquo;In my town there is no fixed time for buses. Office workers wait 20-30 minutes every morning and arrive late. Some pay for a taxi because they cannot wait. They do not know when to leave home.&rdquo;</p></div>
         <p className="qx-muted">This example is from the transport field. Your answers should come from your own field.</p>
       </div>
-      <div className="qx-card qx-explore">
-        <h2 className="qx-h2">Hospitality, Real Estate and Technology questionnaire</h2>
-        <p className="qx-muted">A separate optional questionnaire: 12 open-ended questions, about 20-25 minutes. Already finished this one? Take that one next.</p>
-        <a className="qx-btn qx-primary qx-explore-main" href={`/q/${slug}/hospitality`}>Open the Hospitality questionnaire</a>
-      </div>
+      <QuestionnaireCards slug={slug} current="main" />
       <div className="qx-nav qx-stack">
         {hasDraft && <button className="qx-btn qx-big" onClick={onContinue}>Continue where I left off</button>}
         <button className="qx-btn qx-primary qx-big" onClick={onStart}>{hasDraft ? "Start from About you" : "Start"}</button>
@@ -521,13 +550,7 @@ function Done({ r, slug, set }: { r: Result; slug: string; set: QSet }) {
         </div>
       )}
 
-      {set.variant === "main" && (
-        <div className="qx-card qx-explore">
-          <h2 className="qx-h2">One more optional questionnaire</h2>
-          <p className="qx-muted">Hospitality Operations, Real Estate, and Technology: 12 open-ended questions, about 20-25 minutes. These are new questions, so your earlier answers stay as they are.</p>
-          <a className="qx-btn qx-primary qx-explore-main" href={`/q/${slug}/hospitality`}>Start the Hospitality questionnaire</a>
-        </div>
-      )}
+      <QuestionnaireCards slug={slug} current={set.variant} />
 
       <div className="qx-card qx-explore">
         <h2 className="qx-h2">Visit my portfolio and explore more</h2>

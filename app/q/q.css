@@ -92,3 +92,26 @@
 .qx-explore-link strong { display: block; font-size: 15px; }
 .qx-explore-link span { display: block; margin-top: 3px; font-size: 13px; color: #5b6572; }
 @media (max-width: 480px) { .qx-explore-grid { grid-template-columns: 1fr; } }
+
+/* Cards that open the optional questionnaires */
+.qx-forms { margin: 0 0 16px; }
+.qx-form-grid { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); margin-top: 12px; }
+.qx-form-card { position: relative; display: flex; flex-direction: column; background: #fffaf0; border: 1px solid #f1d9a0; border-radius: 14px; padding: 20px; transition: border-color .2s, transform .2s, box-shadow .2s; }
+.qx-form-card:hover { border-color: var(--qx-accent); transform: translateY(-2px); box-shadow: 0 10px 26px rgba(120, 80, 0, .12); }
+.qx-form-icon { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #ffefc2; color: var(--qx-accent); margin-bottom: 12px; }
+.qx-form-title { margin: 0 0 8px; font-size: 18px; line-height: 1.3; }
+.qx-form-card .qx-form-text { color: var(--qx-soft); font-size: 15px; margin: 0 0 12px; }
+.qx-form-meta { margin: 0 0 16px; font-size: 14px; }
+.qx-form-meta dt { font-weight: 700; color: var(--qx-ink); margin-top: 6px; }
+.qx-form-meta dd { margin: 0; color: var(--qx-soft); }
+.qx a.qx-form-btn { margin-top: auto; width: 100%; }
+.qx-form-btn::after { content: ""; position: absolute; inset: 0; border-radius: 14px; }
+@media (min-width: 640px) {
+  .qx-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qx-form-grid.qx-three .qx-form-card:last-child { grid-column: 1 / -1; }
+}
+@media (min-width: 1000px) {
+  .qx-form-grid.qx-three { grid-template-columns: repeat(3, minmax(0, 1fr)); width: min(1080px, calc(100vw - 64px)); position: relative; left: 50%; transform: translateX(-50%); }
+  .qx-form-grid.qx-three .qx-form-card:last-child { grid-column: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .qx-form-card { transition: none; } .qx-form-card:hover { transform: none; } }

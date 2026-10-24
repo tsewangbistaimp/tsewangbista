@@ -66,7 +66,7 @@ export function buildHtml(i: MailInput): string {
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#eef1f6;"><tr><td align="center" style="padding:16px 8px;">
 <table role="presentation" width="680" cellspacing="0" cellpadding="0" style="width:100%;max-width:680px;background:#ffffff;border:${BORDER};"><tr><td style="padding:18px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;"><tr>
-<td style="vertical-align:top;font:bold 18px ${FONT};color:#10233f;padding-right:10px;">${i.variant === "hospitality" ? "Hospitality Operations, Real Estate, and Technology" : "Knowledge, Problems and Solutions"}<br><span style="font:13px ${FONT};color:#555;">${set.label} &middot; Tsewang Bista</span></td>
+<td style="vertical-align:top;font:bold 18px ${FONT};color:#10233f;padding-right:10px;">${set.title}<br><span style="font:13px ${FONT};color:#555;">${set.label} &middot; Tsewang Bista</span></td>
 <td width="44%" style="vertical-align:top;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
 <tr><td style="border:${BORDER};padding:5px 8px;font:bold 12px ${FONT};">Form No.: RQ-02</td></tr>
 <tr><td style="border:${BORDER};padding:5px 8px;font:12px ${FONT};word-break:break-all;"><b>Submission ID:</b> ${esc(i.id)}</td></tr>

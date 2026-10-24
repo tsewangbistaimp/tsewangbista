@@ -36,9 +36,9 @@ export async function POST(req: Request) {
   if (data.website) return json({ ok: true, id: randomUUID(), tips: [] }); // honeypot: pretend success
 
   // Access control
-  // The hospitality questionnaire is a separate follow-up form: people who already used a single-use invite
+  // The hospitality, tourist and guide questionnaires are separate follow-up forms: people who already used a single-use invite
   // for the main one must still be able to open it, so it relies on the private link alone (and the access code, if used).
-  const access = data.variant === "hospitality" && cfg.access() === "token" ? { ok: true, inviteId: null, singleUse: false } as Awaited<ReturnType<typeof checkAccess>> : await checkAccess(data.inviteToken);
+  const access = data.variant !== "main" && cfg.access() === "token" ? { ok: true, inviteId: null, singleUse: false } as Awaited<ReturnType<typeof checkAccess>> : await checkAccess(data.inviteToken);
   if (!access.ok) return notFound();
   const { inviteId, inviteLabel, singleUse } = access;
 

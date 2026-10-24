@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { SETS } from "@/lib/q/sets";
+import { SETS, type Variant } from "@/lib/q/sets";
 
-type Row = { id: string; name: string; field: string; email: string; at: string; status: string; answered: number; variant?: "main" | "hospitality"; total?: number; answers: Record<string, { answer: string; choice?: string; source?: string }> };
+type Row = { id: string; name: string; field: string; email: string; at: string; status: string; answered: number; variant?: Variant; total?: number; answers: Record<string, { answer: string; choice?: string; source?: string }> };
 type Invite = { id: string; label: string; revoked: boolean; singleUse: boolean; used: boolean; link: string };
 
 type Props = {
-  slug: string; authed: boolean; rows?: Row[]; invites?: Invite[]; total?: number; openId?: string; query?: string; db?: boolean; mode?: string; hospLink?: string;
+  slug: string; authed: boolean; rows?: Row[]; invites?: Invite[]; total?: number; openId?: string; query?: string; db?: boolean; mode?: string; formLinks?: { label: string; url: string }[];
 };
 
 async function call(body: Record<string, unknown>) {
@@ -16,7 +16,7 @@ async function call(body: Record<string, unknown>) {
   return { ok: r.ok, data: (await r.json().catch(() => ({}))) as { error?: string } };
 }
 
-export default function AdminClient({ slug, authed, rows = [], invites = [], total = 57, openId, query = "", db = false, mode = "none", hospLink = "" }: Props) {
+export default function AdminClient({ slug, authed, rows = [], invites = [], total = 57, openId, query = "", db = false, mode = "none", formLinks = [] }: Props) {
   const router = useRouter();
   const [pw, setPw] = useState("");
   const [msg, setMsg] = useState("");
@@ -59,10 +59,15 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
           <button className="qx-btn" onClick={async () => { await call({ action: "logout", slug }); router.refresh(); }}>Sign out</button>
         </div>
       </div>
-      {hospLink && (
+      {formLinks.length > 0 && (
         <div className="qx-note">
-          <b>Hospitality questionnaire link</b> (share it with people who already finished the first one): <a href={hospLink}>{hospLink}</a>{" "}
-          <button className="qx-link" onClick={async () => { try { await navigator.clipboard.writeText(hospLink); } catch { /* ignore */ } }}>Copy</button>
+          <b>Other questionnaire links</b> (share them with people who already finished the first one):
+          {formLinks.map((l) => (
+            <div key={l.url}>
+              {l.label}: <a href={l.url}>{l.url}</a>{" "}
+              <button className="qx-link" onClick={async () => { try { await navigator.clipboard.writeText(l.url); } catch { /* ignore */ } }}>Copy</button>
+            </div>
+          ))}
         </div>
       )}
       {!db && <p className="qx-note">No database connected, so nothing is listed here. Answers still arrive by email.</p>}
@@ -78,7 +83,7 @@ export default function AdminClient({ slug, authed, rows = [], invites = [], tot
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
-                <td>{r.name}</td><td>{r.field}</td><td>{r.variant === "hospitality" ? "Hospitality" : "Research"}</td><td>{r.answered}/{r.total ?? total}</td><td>{r.at.slice(0, 10)}</td><td title={r.status}>{r.status.length > 40 ? `${r.status.slice(0, 40)}...` : r.status}</td>
+                <td>{r.name}</td><td>{r.field}</td><td>{SETS[r.variant ?? "main"].label.replace(" Questionnaire", "")}</td><td>{r.answered}/{r.total ?? total}</td><td>{r.at.slice(0, 10)}</td><td title={r.status}>{r.status.length > 40 ? `${r.status.slice(0, 40)}...` : r.status}</td>
                 <td>
                   <a href={`?id=${r.id}${query ? `&q=${encodeURIComponent(query)}` : ""}`}>Open</a>{" "}
                   <button className="qx-link" style={{ color: "#c0262d" }} onClick={() => removeRow(r.id, r.name)}>Delete</button>
