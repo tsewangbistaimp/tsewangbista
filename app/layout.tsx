@@ -4,11 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://your-vercel-domain.vercel.app"),
   title: {
-    default: "TsewangBistaX | Technology, Business & Innovation",
+    default: "Tsewang Bista | Technology, Business & Innovation",
     template: "%s | TsewangBistaX"
   },
   description:
-    "Premium portfolio of Tsewang Bista, a developer, AI marketer, entrepreneur, business owner, and hospitality professional from Kathmandu, Nepal.",
+    "Full-stack developer, UI/UX designer and AI marketer building websites and growth systems. BSc Computing student and small business owner in Kathmandu, Nepal.",
   keywords: [
     "Tsewang Bista",
     "TsewangBistaX",
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
     "Mustang apple farming"
   ],
   openGraph: {
-    title: "TsewangBistaX",
-    description: "Where Technology, Business & Innovation Meet.",
+    title: "Tsewang Bista | Technology, Business & Innovation",
+    description: "Full-stack developer, UI/UX designer, AI marketer and small business owner from Kathmandu, Nepal.",
     images: ["/images/tsewang-bista-profile.jpeg"],
     type: "website"
   }
