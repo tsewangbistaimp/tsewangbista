@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import type { MouseEvent } from "react";
+import ThemeToggle from "./ThemeToggle";
 
 /**
  * Returns to wherever the person actually came from — using browser history
@@ -23,9 +24,12 @@ export default function BackToPortfolio() {
   }
 
   return (
-    <Link href="/" className="back-link" onClick={handleClick}>
-      <ArrowLeft size={16} />
-      Back to portfolio
-    </Link>
+    <>
+      <Link href="/" className="back-link" onClick={handleClick}>
+        <ArrowLeft size={16} />
+        Back to portfolio
+      </Link>
+      <ThemeToggle className="theme-toggle theme-toggle-floating" />
+    </>
   );
 }

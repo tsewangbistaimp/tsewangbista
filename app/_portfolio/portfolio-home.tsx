@@ -32,6 +32,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import LeadCta from "../components/LeadCta";
 import FreePortfolioPopup from "../components/FreePortfolioPopup";
+import ThemeToggle from "../components/ThemeToggle";
 
 const navItems = ["About", "Skills", "Work", "Services", "Orders", "Contact"];
 
@@ -297,17 +298,20 @@ export default function Home() {
           />
           <span>TsewangBistaX</span>
         </a>
-        <button
-          className="menu-toggle"
-          type="button"
-          aria-expanded={isMenuOpen}
-          aria-controls="main-navigation"
-          aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-          onClick={() => setIsMenuOpen((current) => !current)}
-        >
-          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          <span>Menu</span>
-        </button>
+        <div className="menu-group">
+          <ThemeToggle />
+          <button
+            className="menu-toggle"
+            type="button"
+            aria-expanded={isMenuOpen}
+            aria-controls="main-navigation"
+            aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            onClick={() => setIsMenuOpen((current) => !current)}
+          >
+            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            <span>Menu</span>
+          </button>
+        </div>
         <nav id="main-navigation" className={isMenuOpen ? "is-open" : ""} aria-label="Main navigation">
           {navItems.map((item) => (
             <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setIsMenuOpen(false)}>
@@ -315,10 +319,13 @@ export default function Home() {
             </a>
           ))}
         </nav>
-        <a className="nav-cta" href="#contact">
-          <Mail size={16} />
-          Contact
-        </a>
+        <div className="header-actions">
+          <ThemeToggle />
+          <a className="nav-cta" href="#contact">
+            <Mail size={16} />
+            Contact
+          </a>
+        </div>
       </header>
 
       <section id="top" className="hero-banner-section section-shell">
