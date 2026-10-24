@@ -2022,7 +2022,7 @@ h2::after { height: 4px; width: 44px; }
 .site-header .nav-cta { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.18); color: var(--on-rail); }
 .site-header nav a:hover,
 .site-header .nav-cta:hover { color: var(--gold); }
-.brand img { filter: none; }
+.brand img, .brand:hover img { filter: brightness(0) invert(1); }
 
 /* Pill buttons */
 .button { border-radius: 999px; font-weight: 600; min-height: 56px; padding: 0 30px; }
