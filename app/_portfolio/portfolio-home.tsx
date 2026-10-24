@@ -36,6 +36,15 @@ import ThemeToggle from "../components/ThemeToggle";
 
 const navItems = ["About", "Skills", "Work", "Services", "Orders", "Contact"];
 
+const navIcons = {
+  About: Target,
+  Skills: Sparkles,
+  Work: Layers3,
+  Services: Code2,
+  Orders: PackageCheck,
+  Contact: MessageCircle
+};
+
 const metrics = [
   ["10+", "Skill Domains"],
   ["7", "Industries"],
@@ -315,7 +324,11 @@ export default function Home() {
         <nav id="main-navigation" className={isMenuOpen ? "is-open" : ""} aria-label="Main navigation">
           {navItems.map((item) => (
             <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setIsMenuOpen(false)}>
-              {item}
+              {(() => {
+                const NavIcon = navIcons[item as keyof typeof navIcons];
+                return <NavIcon size={20} aria-hidden="true" />;
+              })()}
+              <span>{item}</span>
             </a>
           ))}
         </nav>
