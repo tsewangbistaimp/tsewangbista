@@ -2293,11 +2293,25 @@ html[data-theme="light"] .testimonial-card, html[data-theme="light"] .experience
 html[data-theme="light"] .about-card { background: linear-gradient(150deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7)); }
 .site-header { -webkit-backdrop-filter: none; backdrop-filter: none; }
 
-/* Skip rendering work for sections that are far off-screen */
-.portfolio-shell > section ~ section { content-visibility: auto; contain-intrinsic-size: auto 900px; }
 
 /* Smooth scrolling, only animate cheap properties, calmer hover on touch */
 .about-card, .venture-card, .testimonial-card, .portfolio-card, .service-list article, .service-list a, .experience-list div, .contact-card { will-change: auto; }
 @media (hover: none) {
   .about-card:hover, .venture-card:hover, .testimonial-card:hover, .portfolio-card:hover, .service-list article:hover, .service-list a:hover, .experience-list div:hover { transform: none; }
+}
+
+/* Cards and text polish */
+.about-cards { align-content: start; align-items: stretch; }
+.about-card { display: flex; flex-direction: column; gap: 8px; min-height: 210px; padding: 28px 24px; }
+.about-card p, .about-card span { font-size: 0.95rem; line-height: 1.55; }
+.about-card:nth-child(2) { align-items: center; justify-content: center; }
+.venture-card, .testimonial-card, .portfolio-card { padding: 26px; }
+.venture-card p, .testimonial-card p, .portfolio-card p, .service-list p, .experience-list p { color: var(--soft); line-height: 1.6; }
+.about-copy p, .about-grid p, .hero-copy p, .contact-section p, .order-section p { line-height: 1.75; max-width: 64ch; }
+p { color: var(--soft); }
+h1, h2, h3 { text-wrap: balance; overflow-wrap: break-word; }
+@media (max-width: 720px) {
+  .about-cards { grid-template-columns: 1fr; }
+  .about-card, .about-card:nth-child(2) { border-radius: 30px; min-height: 0; text-align: left; align-items: flex-start; }
+  h2 { font-size: clamp(1.7rem, 7vw, 2.4rem); }
 }
