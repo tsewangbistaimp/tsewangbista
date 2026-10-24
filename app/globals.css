@@ -1983,14 +1983,15 @@ html[data-theme="light"] {
   --grid-line: rgba(60, 40, 30, 0.035);
 }
 
-body { background: var(--page) fixed; background-size: 140% 140%; color: var(--text); animation: bg-drift 24s ease-in-out infinite alternate; }
+body { background: var(--bg); color: var(--text); }
+body::after { background: var(--page); content: ""; inset: 0; pointer-events: none; position: fixed; z-index: -2; }
 body::before {
   background-image:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
 }
 ::selection { background: rgba(242, 99, 27, 0.4); color: var(--text); }
-.cursor-glow { background: radial-gradient(circle, rgba(242, 99, 27, 0.14), transparent 22rem); }
+.cursor-glow { display: none; }
 
 h1, h2, h3, .brand span, .eyebrow, .floating-stats strong, .button, .nav-cta, nav a { font-family: var(--font-display); }
 h1, h2 { font-weight: 600; letter-spacing: -0.02em; }
@@ -2047,8 +2048,8 @@ h2::after { height: 4px; width: 44px; }
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
   box-shadow: var(--card-shadow);
-  -webkit-backdrop-filter: blur(22px) saturate(1.1);
-  backdrop-filter: blur(22px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 .service-list article,
 .service-list a,
@@ -2084,8 +2085,6 @@ h2::after { height: 4px; width: 44px; }
   background: var(--glass);
   border: 1px solid var(--line);
   border-radius: 999px;
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
   transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
 .skill-cloud span:hover, .social-row a:hover, .site-footer a:hover { background: var(--glass-strong); border-color: var(--line-strong); transform: translateY(-4px); }
@@ -2098,7 +2097,6 @@ h2::after { height: 4px; width: 44px; }
 .floating-services { border-radius: 999px; }
 .floating-services span { background: rgba(13, 12, 14, 0.62); border-color: rgba(255, 255, 255, 0.16); color: #ffffff; border-radius: 999px; }
 .hero-banner-image, .services-banner-image { border-radius: var(--radius); box-shadow: var(--card-shadow); }
-.hero-banner-image { animation: tile-float 9s ease-in-out infinite; }
 .project-art, .project-art span, .portrait-card { color: #ffffff; }
 
 input, select, textarea { background: var(--glass); border: 1px solid var(--line); border-radius: 18px; color: var(--text); transition: border-color 0.25s ease, box-shadow 0.25s ease; }
@@ -2115,7 +2113,7 @@ option { background: var(--bg-2); color: var(--text); }
 @keyframes tile-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes bg-drift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
 @media (prefers-reduced-motion: reduce) {
-  body, .hero-banner-image, .ring-glow { animation: none; }
+  .hero-banner-visual::before { animation: none; }
   .about-card:hover, .venture-card:hover, .testimonial-card:hover, .portfolio-card:hover, .service-list article:hover, .service-list a:hover, .experience-list div:hover, .contact-card:hover { transform: none; }
 }
 
@@ -2280,3 +2278,26 @@ html[data-theme="light"] .skill-cloud span { background: rgba(255, 255, 255, 0.7
 .floating-stats span { animation: underline-in 1.2s ease both; }
 @keyframes underline-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .hero-banner-visual::before, .floating-stats span { animation: none; } }
+
+/* Performance: blur only on the large panels, flat translucency on small/nested items */
+.service-list article, .service-list a, .portfolio-card, .testimonial-card, .experience-list div,
+.venture-card, .about-card, .skill-cloud span, .social-row a, .site-footer a, .secondary, .floating-services span {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.service-list article, .service-list a, .portfolio-card, .testimonial-card, .experience-list div, .venture-card, .about-card {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
+}
+html[data-theme="light"] .service-list article, html[data-theme="light"] .service-list a, html[data-theme="light"] .portfolio-card,
+html[data-theme="light"] .testimonial-card, html[data-theme="light"] .experience-list div, html[data-theme="light"] .venture-card,
+html[data-theme="light"] .about-card { background: linear-gradient(150deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7)); }
+.site-header { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* Skip rendering work for sections that are far off-screen */
+.portfolio-shell > section ~ section { content-visibility: auto; contain-intrinsic-size: auto 900px; }
+
+/* Smooth scrolling, only animate cheap properties, calmer hover on touch */
+.about-card, .venture-card, .testimonial-card, .portfolio-card, .service-list article, .service-list a, .experience-list div, .contact-card { will-change: auto; }
+@media (hover: none) {
+  .about-card:hover, .venture-card:hover, .testimonial-card:hover, .portfolio-card:hover, .service-list article:hover, .service-list a:hover, .experience-list div:hover { transform: none; }
+}

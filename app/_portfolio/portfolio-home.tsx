@@ -238,15 +238,12 @@ export default function Home() {
       { threshold: 0.14 }
     );
 
-    if (supportsFinePointer) {
-      window.addEventListener("pointermove", moveGlow);
-    }
+    // Cursor glow disabled for performance (it forced a repaint on every mouse move).
+    void supportsFinePointer;
+    void moveGlow;
     revealTargets.forEach((target) => observer.observe(target));
 
     return () => {
-      if (supportsFinePointer) {
-        window.removeEventListener("pointermove", moveGlow);
-      }
       observer.disconnect();
     };
   }, []);
