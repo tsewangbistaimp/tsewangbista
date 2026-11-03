@@ -17,7 +17,6 @@ import {
   Menu,
   MapPin,
   MessageCircle,
-  MountainSnow,
   PackageCheck,
   ShoppingBag,
   Sparkles,
@@ -35,14 +34,13 @@ import LeadCta from "../components/LeadCta";
 import FreePortfolioPopup from "../components/FreePortfolioPopup";
 import ThemeToggle from "../components/ThemeToggle";
 
-const navItems = ["About", "Skills", "Work", "Services", "Trekking Guide", "Orders", "Contact"];
+const navItems = ["About", "Skills", "Work", "Services", "Orders", "Contact"];
 
 const navIcons = {
   About: Target,
   Skills: Sparkles,
   Work: Layers3,
   Services: Code2,
-  "Trekking Guide": MountainSnow,
   Orders: PackageCheck,
   Contact: MessageCircle
 };
@@ -106,12 +104,6 @@ const services = [
     title: "Free Portfolio",
     body: "Register for a free personal portfolio website. Fill in one simple form and we build it for you.",
     href: "/services/free-portfolio"
-  },
-  {
-    icon: MountainSnow,
-    title: "Trekking Guide",
-    body: "Professional profile of a trekking guide from Mustang, Nepal: experience, destinations, skills and how to get in touch.",
-    href: "/trekking-guide"
   }
 ];
 
@@ -190,12 +182,6 @@ const portfolio = [
     type: "Marketing Offer / Landing Page",
     body: "A done-for-you lead system: Meta Ads, a high-converting landing page, and automated follow-up that turns cold traffic into real leads.",
     href: "/lead-flow-sprint"
-  },
-  {
-    title: "Trekking Guide, Mustang",
-    type: "Tourism / Local Guiding",
-    body: "5-6 years of trekking guide experience in Mustang, Nepal, with local knowledge of Himalayan routes, traditional villages, and culture. See my guide profile and get in touch.",
-    href: "/trekking-guide"
   }
 ];
 
@@ -334,7 +320,7 @@ export default function Home() {
         </div>
         <nav id="main-navigation" className={isMenuOpen ? "is-open" : ""} aria-label="Main navigation">
           {navItems.map((item) => (
-            <a key={item} href={item === "Trekking Guide" ? "/trekking-guide" : `#${item.toLowerCase()}`} onClick={() => setIsMenuOpen(false)}>
+            <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setIsMenuOpen(false)}>
               {(() => {
                 const NavIcon = navIcons[item as keyof typeof navIcons];
                 return <NavIcon size={20} aria-hidden="true" />;
