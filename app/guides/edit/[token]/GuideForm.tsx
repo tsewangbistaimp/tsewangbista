@@ -127,7 +127,7 @@ export default function GuideForm({ token, initial, step: startStep, note }: Pro
     <div className="fp-chips">{opts.map((o) => <button type="button" key={o} className={sel.includes(o) ? "on" : ""} onClick={() => on(o)}>{o}</button>)}</div>
   );
 
-  const it = d.itineraries[ai];
+  const it = d.itineraries[ai] ?? d.itineraries[0];
   const setF = (k: string, v: string) => setIt(ai, (x) => ({ ...x, f: { ...x.f, [k]: v } }));
 
   const dayEditor = (day: Day, i: number, n: number) => {
@@ -248,6 +248,14 @@ export default function GuideForm({ token, initial, step: startStep, note }: Pro
               <Field label="Emergency contact phone" hint="Private.">{input(d.safety.emergencyPhone, (v) => setS("emergencyPhone", v), "", "tel")}</Field>
             </div>
             <Field label="Emergency evacuation procedure" wide>{area(d.safety.evacuation, (v) => setS("evacuation", v), "", 2)}</Field>
+          </div>
+        )}
+
+        {step === 3 && !it && (
+          <div className="fp-step">
+            <h2>Itineraries &amp; prices</h2>
+            <p className="fp-lead">Add your first trekking package. Each package gets its own page with a day-by-day plan and a price. You can add up to {MAX_ITINERARIES}.</p>
+            <button type="button" className="fp-next" onClick={() => { setD((x) => ({ ...x, itineraries: [emptyItinerary()] })); setAi(0); }}><Plus size={16} /> Add my first itinerary</button>
           </div>
         )}
 
