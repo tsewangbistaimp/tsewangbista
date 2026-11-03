@@ -182,6 +182,12 @@ const portfolio = [
     type: "Marketing Offer / Landing Page",
     body: "A done-for-you lead system: Meta Ads, a high-converting landing page, and automated follow-up that turns cold traffic into real leads.",
     href: "/lead-flow-sprint"
+  },
+  {
+    title: "Trekking Guide, Mustang",
+    type: "Tourism / Local Guiding",
+    body: "5-6 years of trekking guide experience in Mustang, Nepal, with local knowledge of Himalayan routes, traditional villages, and culture. Message me on WhatsApp to plan a trek.",
+    href: "https://wa.me/9779862568506?text=Hello%20Tsewang%2C%20I%27d%20like%20to%20ask%20about%20a%20trek%20in%20Mustang."
   }
 ];
 
