@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { BadgeCheck, CalendarDays, Clock, Compass, MapPin, Mountain, ShieldCheck } from "lucide-react";
+import { BadgeCheck, CalendarDays, Clock, Compass, MapPin, Mountain, ShieldCheck, User } from "lucide-react";
 import { itineraryBreakdown, money } from "../../lib/guide/pricing";
-import { PRICE_STATUS, SERVICE_MODES, pkgSlug, safeUrl, type GuideData, type Itinerary } from "../../lib/guide/types";
+import { PRICE_STATUS, SERVICE_MODES, embedUrl, pkgSlug, safeUrl, type GuideData, type Itinerary } from "../../lib/guide/types";
 import "./guides.css";
 
 const Row = ({ k, v }: { k: string; v?: string }) => (v && v.trim() ? <div className="gd-row"><dt>{k}</dt><dd>{v}</dd></div> : null);
@@ -27,9 +27,9 @@ export function ProfileView({ d, slug, verified, preview }: { d: GuideData; slug
   return (
     <div className="gd">
       <header className="gd-hero">
-        <Img url={p.coverPhoto} alt="" className="gd-cover" />
+        {safeUrl(p.coverPhoto) ? <Img url={p.coverPhoto} alt="" className="gd-cover" /> : <div className="gd-cover gd-cover-ph" />}
         <div className="gd-hero-body">
-          <Img url={p.profilePhoto} alt={p.displayName} className="gd-avatar" />
+          {safeUrl(p.profilePhoto) ? <Img url={p.profilePhoto} alt={p.displayName} className="gd-avatar" /> : <div className="gd-avatar gd-ph" role="img" aria-label="Professional photo to be added"><User size={44} /></div>}
           <div>
             <p className="eyebrow">Trekking guide{p.location ? ` · ${p.location}` : ""}</p>
             <h1>{p.displayName || "Guide name"}</h1>
@@ -121,6 +121,21 @@ export function ProfileView({ d, slug, verified, preview }: { d: GuideData; slug
           <Row k="Max groups at once" v={d.avail.maxGroups} /><Row k="Max group capacity" v={d.avail.maxCapacity} /><Row k="Advance booking" v={d.avail.advance} />
         </dl>
       </section>
+
+      {d.media.length ? (
+        <section className="gd-sec"><h2>Videos and more</h2>
+          <div className="gd-gallery">
+            {d.media.map((m, i) => {
+              const e = embedUrl(m.url);
+              return e ? (
+                <figure key={i}><iframe src={e} title={m.title || "Video"} loading="lazy" allowFullScreen referrerPolicy="no-referrer" style={{ aspectRatio: "16/9", border: 0, borderRadius: 20, width: "100%" }} /><figcaption>{m.title}</figcaption></figure>
+              ) : safeUrl(m.url) ? (
+                <a className="gd-card" key={i} href={safeUrl(m.url)} target="_blank" rel="noreferrer noopener"><b>{m.title || m.kind}</b><span className="gd-meta">{m.kind}</span></a>
+              ) : null;
+            })}
+          </div>
+        </section>
+      ) : null}
 
       {d.gallery.length ? (
         <section className="gd-sec"><h2>Gallery</h2>

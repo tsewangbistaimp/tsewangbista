@@ -41,3 +41,5 @@
 .gd-gallery img{aspect-ratio:4/3;border-radius:20px;object-fit:cover;width:100%}
 .gd-gallery figcaption{color:var(--muted);font-size:.82rem;margin-top:6px}
 .gd-bar{align-items:center;display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+.gd-ph{align-items:center;background:var(--glass);border:2px dashed var(--line-strong);color:var(--muted);display:flex;justify-content:center}
+.gd-cover-ph{aspect-ratio:16/6;background:linear-gradient(135deg,rgba(242,99,27,.25),rgba(124,98,132,.35))}

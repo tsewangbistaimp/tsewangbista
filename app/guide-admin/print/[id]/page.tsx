@@ -96,6 +96,8 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       <h2>Itineraries ({d.itineraries.length})</h2>
       {d.itineraries.map((it, i) => <Trek key={it.id} it={it} n={i + 1} />)}
 
+      {d.media.length ? <><h2>Videos and other media</h2>{d.media.map((m, i) => <p key={i}>{m.kind}: {m.title} {m.url}</p>)}</> : null}
+
       {d.gallery.length ? <><h2>Gallery links</h2>{d.gallery.map((g, i) => <p key={i}>{g.category}: {g.url} {g.caption}</p>)}</> : null}
     </div>
   );

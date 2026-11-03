@@ -45,6 +45,8 @@ export type Itinerary = { id: string; f: Record<string, string>; days: Day[]; pr
 export type Exp = { company: string; role: string; period: string; regions: string; details: string };
 export type Cert = { name: string; issuer: string; issued: string; expiry: string; link: string };
 export type Photo = { category: string; url: string; caption: string };
+export type Media = { kind: string; title: string; url: string };
+export const MEDIA_KINDS = ["Video", "Website or article", "Social profile", "Other"];
 export type ServiceMode = "included" | "extra" | "none";
 
 export type GuideData = {
@@ -52,7 +54,7 @@ export type GuideData = {
   regions: string[]; regionInfo: Record<string, Record<string, string>>; customDestinations: string;
   services: Record<string, ServiceMode>; customServices: { name: string; mode: ServiceMode }[];
   itineraries: Itinerary[]; safety: Record<string, string>; avail: Record<string, string>; availSeasons: string[]; availMonths: string[];
-  gallery: Photo[]; confirm: boolean;
+  gallery: Photo[]; media: Media[]; confirm: boolean;
 };
 
 // Field keys by group (used by the form and by `normalize`).
@@ -122,11 +124,29 @@ export function normalize(raw: unknown): GuideData {
     availSeasons: strs(o.availSeasons, 4).filter((x) => SEASONS.includes(x)),
     availMonths: strs(o.availMonths, 12).filter((x) => MONTHS.includes(x)),
     gallery: list(o.gallery, 60).map((g) => ({ category: GALLERY_CATEGORIES.includes(s(rec(g).category)) ? s(rec(g).category) : GALLERY_CATEGORIES[0], url: s(rec(g).url, 400), caption: s(rec(g).caption, 200) })).filter((g) => g.url),
+    media: list(o.media, 12).map((m) => ({ kind: MEDIA_KINDS.includes(s(rec(m).kind)) ? s(rec(m).kind) : "Video", title: s(rec(m).title, 120), url: s(rec(m).url, 400) })).filter((m) => m.url),
     confirm: o.confirm === true
   };
 }
 
 export const slugify = (t: string) => t.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-").slice(0, 48) || "guide";
+/** Only YouTube and Vimeo links are embedded; anything else is shown as a normal link. */
+export function embedUrl(u: string): string {
+  try {
+    const x = new URL(u.trim());
+    const host = x.hostname.replace(/^www\./, "");
+    if (host === "youtu.be") return /^[\w-]{11}$/.test(x.pathname.slice(1, 12)) ? `https://www.youtube-nocookie.com/embed/${x.pathname.slice(1, 12)}` : "";
+    if (host === "youtube.com" || host === "m.youtube.com") {
+      const id = x.searchParams.get("v") ?? x.pathname.match(/^\/(?:embed|shorts)\/([\w-]{11})/)?.[1] ?? "";
+      return /^[\w-]{11}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : "";
+    }
+    if (host === "vimeo.com") {
+      const id = x.pathname.match(/^\/(\d+)/)?.[1];
+      return id ? `https://player.vimeo.com/video/${id}` : "";
+    }
+  } catch { /* not a URL */ }
+  return "";
+}
 export const safeUrl = (u: string) => (/^https?:\/\/\S+$/i.test(u.trim()) ? u.trim() : "");
 export const pkgSlug = (it: Itinerary) => `${slugify(it.f.title || "package")}-${it.id}`;
 

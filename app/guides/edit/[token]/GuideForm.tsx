@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CheckCircle2, Copy, Plus, Save, Send, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CheckCircle2, Copy, Plus, Save, Send, Trash2, User } from "lucide-react";
 import { ProfileView, PackageView } from "../../GuideView";
 import { itineraryBreakdown, money } from "../../../../lib/guide/pricing";
 import {
-  COST_PRESETS, COST_SCOPES, CURRENCIES, DAY_TYPES, DIFFICULTY, EXCLUDED, INCLUDED, LANGUAGES, MAX_ITINERARIES, MONTHS, PRICE_STATUS, REGIONS, SEASONS, SERVICES, TOTAL_STEPS,
+  COST_PRESETS, COST_SCOPES, MEDIA_KINDS, CURRENCIES, DAY_TYPES, DIFFICULTY, EXCLUDED, INCLUDED, LANGUAGES, MAX_ITINERARIES, MONTHS, PRICE_STATUS, REGIONS, SEASONS, SERVICES, TOTAL_STEPS,
   emptyDay, emptyItinerary, uid, validateStep, type Day, type GuideData, type Itinerary
 } from "../../../../lib/guide/types";
 import "../../../services/free-portfolio/form.css";
@@ -200,7 +200,14 @@ export default function GuideForm({ token, initial, step: startStep, note }: Pro
             <Field label="Professional headline" req wide hint="Example: Mustang trekking guide with local culture expertise">{input(d.p.headline, (v) => setP("headline", v))}</Field>
             <Field label="Short biography" req wide hint="Who you are and what trekkers can expect. At least 50 characters.">{area(d.p.bio, (v) => setP("bio", v), "", 5)}</Field>
             <div className="fp-field"><span className="fp-label">Languages spoken<b> *</b></span>{chips(LANGUAGES, d.languages, (v) => setD((x) => ({ ...x, languages: toggle(x.languages, v) })))}</div>
-            <Field label="Profile photo link" wide hint="Link to your photo (Google Drive, Dropbox, Instagram or your site).">{input(d.p.profilePhoto, (v) => setP("profilePhoto", v), "https://…")}</Field>
+            <div className="gf-photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {/^https?:\/\//i.test(d.p.profilePhoto) ? <img src={d.p.profilePhoto} alt="Your professional photo" referrerPolicy="no-referrer" /> : <div className="gf-photo-ph"><User size={40} /><span>Your professional photo</span></div>}
+              <div>
+                <Field label="Professional photo link" wide hint="A clear, friendly photo of you. Paste a link (Google Drive, Dropbox, Instagram or your site). Until you add one, a placeholder is shown on your portfolio.">{input(d.p.profilePhoto, (v) => setP("profilePhoto", v), "https://…")}</Field>
+                <Field label="Cover photo link" wide hint="A wide mountain or trekking photo for the top of your page.">{input(d.p.coverPhoto, (v) => setP("coverPhoto", v), "https://…")}</Field>
+              </div>
+            </div>
           </div>
         )}
 
@@ -248,6 +255,20 @@ export default function GuideForm({ token, initial, step: startStep, note }: Pro
               <Field label="Emergency contact phone" hint="Private.">{input(d.safety.emergencyPhone, (v) => setS("emergencyPhone", v), "", "tel")}</Field>
             </div>
             <Field label="Emergency evacuation procedure" wide>{area(d.safety.evacuation, (v) => setS("evacuation", v), "", 2)}</Field>
+
+            <h3 className="fp-sub">Videos and other media <small>optional</small></h3>
+            <p className="fp-lead" style={{ fontSize: ".85rem" }}>Add an introduction video, a trek video, your website or anything else you want visitors to see. YouTube and Vimeo links play on your page; other links show as buttons.</p>
+            {d.media.map((m, i) => (
+              <div className="fp-repeat" key={i}>
+                <div className="fp-grid">
+                  <select value={m.kind} onChange={(e) => setD((x) => ({ ...x, media: x.media.map((y, j) => (j === i ? { ...y, kind: e.target.value } : y)) }))}>{MEDIA_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
+                  <input placeholder="Title, e.g. My Upper Mustang trek" value={m.title} onChange={(e) => setD((x) => ({ ...x, media: x.media.map((y, j) => (j === i ? { ...y, title: e.target.value } : y)) }))} />
+                </div>
+                <input placeholder="Link https://…" value={m.url} onChange={(e) => setD((x) => ({ ...x, media: x.media.map((y, j) => (j === i ? { ...y, url: e.target.value } : y)) }))} />
+                <button type="button" className="fp-del" aria-label="Remove" onClick={() => setD((x) => ({ ...x, media: x.media.filter((_, j) => j !== i) }))}><Trash2 size={15} /></button>
+              </div>
+            ))}
+            {d.media.length < 12 ? <button type="button" className="fp-add" onClick={() => setD((x) => ({ ...x, media: [...x.media, { kind: "Video", title: "", url: "" }] }))}><Plus size={15} /> Add video or link</button> : null}
           </div>
         )}
 
