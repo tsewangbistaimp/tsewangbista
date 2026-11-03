@@ -23,5 +23,5 @@ export default async function GuideAdminPage() {
     };
   });
   const inq = inquiries.slice(0, 100).map((i) => ({ id: i.id, guide: guides.find((g) => g.id === i.guide_id)?.name ?? "", kind: i.kind, name: i.name, email: i.email, country: i.country ?? "", message: i.message, at: i.created_at, pkg: i.package_id ?? "" }));
-  return <AdminClient authed origin={origin} guides={guides.map(({ full, pub, ...g }) => { void pub; return { ...g, json: JSON.stringify(full, null, 2) }; })} inquiries={inq} />;
+  return <AdminClient authed origin={origin} guides={guides.map(({ pub, ...g }) => { void pub; return g; })} inquiries={inq} />;
 }

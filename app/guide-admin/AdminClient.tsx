@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { STATUS_LABEL, type Status } from "../../lib/guide/types";
+import { STATUS_LABEL, type GuideData, type Status } from "../../lib/guide/types";
+import { PackageView, ProfileView } from "../guides/GuideView";
 
-type G = { id: string; email: string; status: Status; verified: boolean; slug: string | null; name: string; updated: string; note: string; packages: number; regions: string; inquiries: number; json: string };
+type G = { id: string; email: string; status: Status; verified: boolean; slug: string | null; name: string; updated: string; note: string; packages: number; regions: string; inquiries: number; full: GuideData };
 type Inq = { id: string; guide: string; kind: string; name: string; email: string; country: string; message: string; at: string; pkg: string };
 type Props = { authed: boolean; origin?: string; guides?: G[]; inquiries?: Inq[] };
 
@@ -59,7 +60,25 @@ export default function AdminClient({ authed, origin, guides = [], inquiries = [
             <button style={btn} onClick={() => act(g.id, "verify", { verified: !g.verified })}>{g.verified ? "Remove verified badge" : "Mark verified"}</button>
             <button style={btn} onClick={() => setOpen(open === g.id ? "" : g.id)}>{open === g.id ? "Hide" : "View"} full submission</button>
           </div>
-          {open === g.id ? <pre style={{ marginTop: 12, maxHeight: 420, overflow: "auto", fontSize: ".75rem", whiteSpace: "pre-wrap" }}>{g.json}</pre> : null}
+          {open === g.id ? (
+            <div style={{ marginTop: 14 }}>
+              <div style={box}>
+                <b>Private details (admin only)</b>
+                <table style={{ width: "100%", marginTop: 8, fontSize: ".9rem" }}><tbody>
+                  {([["Legal name", g.full.p.legalName], ["Email", g.full.p.email], ["Phone", g.full.p.phone], ["WhatsApp", g.full.p.whatsapp], ["Guide licence no.", g.full.q.licenceNo], ["Emergency contact", `${g.full.safety.emergencyName} ${g.full.safety.emergencyPhone}`.trim()]] as const).map(([k, v]) => (
+                    <tr key={k}><td style={{ width: "35%", opacity: 0.7, padding: "4px 0" }}>{k}</td><td>{v || "-"}</td></tr>
+                  ))}
+                  {g.full.certs.filter((c) => c.name).map((c, i) => (
+                    <tr key={i}><td style={{ opacity: 0.7 }}>Certificate</td><td>{c.name}, {c.issuer} {c.link ? <a href={c.link} target="_blank" rel="noreferrer">(open document link)</a> : ""}</td></tr>
+                  ))}
+                </tbody></table>
+              </div>
+              <ProfileView d={g.full} preview />
+              {g.full.itineraries.map((it) => (
+                <details key={it.id} style={box}><summary style={{ cursor: "pointer", fontWeight: 700 }}>{it.f.title || "Untitled itinerary"}</summary><PackageView it={it} /></details>
+              ))}
+            </div>
+          ) : null}
         </div>
       ))}
       <h2>Recent inquiries ({inquiries.length})</h2>
