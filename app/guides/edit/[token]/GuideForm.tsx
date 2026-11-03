@@ -23,7 +23,7 @@ const LABELS: Record<string, string> = {
   alternatives: "Alternative routes", emergencyExit: "Emergency exit points", changes: "Possible itinerary changes", weather: "Weather-related adjustments", safetyInfo: "Important safety information"
 };
 
-type Props = { token: string; initial: GuideData; step: number; note: string | null; email: string };
+type Props = { token: string; initial: GuideData; step: number; note: string | null; token2?: string };
 
 function Field({ label, hint, req, children, wide }: { label: string; hint?: string; req?: boolean; children: ReactNode; wide?: boolean }) {
   return (
@@ -35,7 +35,7 @@ function Field({ label, hint, req, children, wide }: { label: string; hint?: str
   );
 }
 
-export default function GuideForm({ token, initial, step: startStep, note, email }: Props) {
+export default function GuideForm({ token, initial, step: startStep, note }: Props) {
   const [d, setD] = useState<GuideData>(initial);
   const [step, setStep] = useState(Math.min(7, startStep));
   const [maxStep, setMaxStep] = useState(Math.min(7, startStep));
@@ -44,6 +44,7 @@ export default function GuideForm({ token, initial, step: startStep, note, email
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [ai, setAi] = useState(0); // active itinerary
+  const [copied, setCopied] = useState(false);
   const first = useRef(true);
   const top = useRef<HTMLDivElement>(null);
   const latest = useRef({ d, step });
@@ -122,7 +123,7 @@ export default function GuideForm({ token, initial, step: startStep, note, email
     return (
       <div className="fp-card fp-done">
         <CheckCircle2 size={56} /><h2>Submitted for verification</h2>
-        <p>Thank you. Your portfolio is now waiting for review. It becomes public only after it is approved, and we will email you at <strong>{email}</strong> when the status changes.</p>
+        <p>Thank you. Your portfolio is now waiting for review. It becomes public only after it is approved, and we will email you at <strong>{d.p.email}</strong> when the status changes.</p>
       </div>
     );
   }
@@ -182,6 +183,9 @@ export default function GuideForm({ token, initial, step: startStep, note, email
 
   return (
     <div className="fp-card gf" ref={top}>
+      <p className="fp-lead" style={{ fontSize: ".85rem" }}>
+        To continue later on any device, save this page&apos;s link. <button type="button" className="gf-linkbtn" onClick={() => { navigator.clipboard?.writeText(window.location.href); setCopied(true); }}>{copied ? "Link copied" : "Copy my link"}</button> Anyone with the link can edit this draft, so keep it private.
+      </p>
       {note ? <p className="fp-error" style={{ marginTop: 0 }}><b>Reviewer note:</b> {note}</p> : null}
       <div className="gf-intro">
         <strong>Estimated time: 25-35 minutes · 8 steps · Save and continue later.</strong>
@@ -212,7 +216,7 @@ export default function GuideForm({ token, initial, step: startStep, note, email
               <Field label="Date of birth" hint="Private.">{input(d.p.dob, (v) => setP("dob", v), "", "date")}</Field>
               <Field label="Phone number" req hint="Private. Provide a phone or WhatsApp number.">{input(d.p.phone, (v) => setP("phone", v), "+977…", "tel")}</Field>
               <Field label="WhatsApp number" hint="Shown publicly as a WhatsApp button. Leave empty to keep it private.">{input(d.p.whatsapp, (v) => setP("whatsapp", v), "+977…", "tel")}</Field>
-              <Field label="Email address" hint="Private. Fixed to the address you started with.">{input(email, () => undefined)}</Field>
+              <Field label="Email address" req hint="Private. Used only to contact you about your portfolio.">{input(d.p.email, (v) => setP("email", v), "you@example.com", "email")}</Field>
               <Field label="Preferred contact method" req>{select(d.p.preferredContact, (v) => setP("preferredContact", v), CONTACT_METHODS)}</Field>
               <Field label="Website">{input(d.p.website, (v) => setP("website", v), "https://…", "url")}</Field>
             </div>

@@ -28,13 +28,13 @@ export async function POST(req: Request) {
   }
   const origin = siteOrigin(req);
   await sendMail({
-    to: row.email, subject: "We received your trekking guide portfolio",
+    to: data.p.email, subject: "We received your trekking guide portfolio",
     html: wrap("Submitted for verification", `<p>Thank you, ${esc(data.p.displayName)}. Your portfolio is now waiting for review. It becomes public only after it is approved. We will email you when the status changes.</p>`)
   });
   if (cfg.recipient()) {
     await sendMail({
       to: cfg.recipient(), subject: `[Guide portfolio] ${data.p.displayName} submitted for verification`,
-      html: wrap("New guide portfolio to review", `<p>${esc(data.p.displayName)} (${esc(row.email)}) submitted a portfolio with ${data.itineraries.length} itinerary(ies).</p>${button(`${origin}/guide-admin`, "Open guide admin")}`)
+      html: wrap("New guide portfolio to review", `<p>${esc(data.p.displayName)} (${esc(data.p.email)}) submitted a portfolio with ${data.itineraries.length} itinerary(ies).</p>${button(`${origin}/guide-admin`, "Open guide admin")}`)
     });
   }
   return json({ ok: true });

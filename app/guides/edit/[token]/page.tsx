@@ -22,7 +22,7 @@ export default async function EditPage({ params }: { params: Promise<{ token: st
       <section className="section-shell" style={{ paddingTop: 100 }}>
         <p className="eyebrow">Trekking Guide Portfolio · {STATUS_LABEL[row.status]}</p>
         {editable ? (
-          <GuideForm token={(await params).token} initial={d} step={row.step} note={row.admin_note} email={row.email} />
+          <GuideForm token={(await params).token} initial={d} step={row.step} note={row.admin_note} />
         ) : (
           <>
             <h1 className="sprint-headline">{STATUS_LABEL[row.status]}</h1>

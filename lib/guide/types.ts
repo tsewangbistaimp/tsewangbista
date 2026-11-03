@@ -56,7 +56,7 @@ export type GuideData = {
 };
 
 // Field keys by group (used by the form and by `normalize`).
-export const P_KEYS = ["legalName", "displayName", "profilePhoto", "coverPhoto", "headline", "bio", "nationality", "location", "dob", "phone", "whatsapp", "preferredContact", "socials", "website"];
+export const P_KEYS = ["legalName", "displayName", "profilePhoto", "coverPhoto", "headline", "bio", "nationality", "location", "dob", "phone", "whatsapp", "email", "preferredContact", "socials", "website"];
 export const Q_KEYS = ["yearsExp", "treksDone", "trekkersGuided", "previousCompanies", "highestAlt", "memorable", "achievements", "training", "licenceNo", "licenceAuthority", "firstAid", "wilderness", "rescue"];
 export const REGION_KEYS = ["routes", "timesCompleted", "yearsInRegion", "highestAlt", "culture", "routeKnowledge", "difficulty", "seasons", "expertise"];
 export const IT_KEYS = ["title", "region", "destination", "short", "detail", "highlights", "durationDays", "nights", "start", "end", "maxAlt", "distanceKm", "difficulty", "season", "minAge", "fitness", "minPart", "maxPart", "accommodation", "transport", "permits", "photos", "mapLink", "gpsLink", "alternatives", "emergencyExit", "changes", "weather", "safetyInfo"];
@@ -140,6 +140,7 @@ export function validateStep(d: GuideData, step: number): string {
     if (p.bio.trim().length < 50) return "Please write a professional biography (at least 50 characters).";
     if (!p.nationality.trim()) return "Please enter your nationality.";
     if (!p.location.trim()) return "Please enter your current location.";
+    if (!/^\S+@\S+\.\S+$/.test(p.email.trim())) return "Please enter a valid email address.";
     if (!p.phone.trim() && !p.whatsapp.trim()) return "Please add a phone or WhatsApp number.";
     if (!d.languages.length) return "Please choose at least one language.";
     if (!p.preferredContact) return "Please choose your preferred contact method.";
@@ -172,7 +173,7 @@ export function validateStep(d: GuideData, step: number): string {
 /** Removes everything that must never be public. */
 export function toPublic(d: GuideData): GuideData {
   const c = normalize(d);
-  for (const k of ["legalName", "dob", "phone"]) c.p[k] = "";
+  for (const k of ["legalName", "dob", "phone", "email"]) c.p[k] = "";
   c.q.licenceNo = "";
   c.q.licenceAuthority = "";
   c.certs = c.certs.map((x) => ({ ...x, link: "" }));

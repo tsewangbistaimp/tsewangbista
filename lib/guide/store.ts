@@ -27,23 +27,10 @@ export const newToken = () => randomBytes(24).toString("base64url");
 export const validToken = (t: string) => /^[A-Za-z0-9_-]{20,80}$/.test(t);
 const COLS = "id,email,slug,status,verified,display_name,step,data,admin_note,submitted_at,approved_at,created_at,updated_at";
 
-export async function findByEmail(email: string): Promise<GuideRow | null> {
+export async function createProfile(token: string): Promise<GuideRow | null> {
   if (!hasDb()) return null;
-  const r = await db(`guide_profiles?email=ilike.${encodeURIComponent(email.replace(/[%*]/g, ""))}&select=${COLS}&order=created_at.desc&limit=1`);
+  const r = await db("guide_profiles", { method: "POST", body: JSON.stringify({ email: "", token_hash: hashToken(token), data: normalize({}) }) });
   return r.ok ? (((await r.json()) as GuideRow[])[0] ?? null) : null;
-}
-
-export async function createProfile(email: string, token: string): Promise<GuideRow | null> {
-  if (!hasDb()) return null;
-  const data = normalize({});
-  data.p.preferredContact = "";
-  const r = await db("guide_profiles", { method: "POST", body: JSON.stringify({ email, token_hash: hashToken(token), data }) });
-  return r.ok ? (((await r.json()) as GuideRow[])[0] ?? null) : null;
-}
-
-export async function rotateToken(id: string, token: string): Promise<boolean> {
-  const r = await db(`guide_profiles?id=eq.${id}`, { method: "PATCH", body: JSON.stringify({ token_hash: hashToken(token), updated_at: new Date().toISOString() }) });
-  return r.ok;
 }
 
 export async function findByToken(token: string): Promise<GuideRow | null> {
@@ -55,7 +42,7 @@ export async function findByToken(token: string): Promise<GuideRow | null> {
 export async function saveDraft(id: string, data: GuideData, step: number): Promise<boolean> {
   const r = await db(`guide_profiles?id=eq.${id}`, {
     method: "PATCH",
-    body: JSON.stringify({ data, step: Math.min(7, Math.max(0, step)), display_name: data.p.displayName || null, updated_at: new Date().toISOString() })
+    body: JSON.stringify({ data, step: Math.min(7, Math.max(0, step)), display_name: data.p.displayName || null, email: data.p.email.trim().toLowerCase().slice(0, 160), updated_at: new Date().toISOString() })
   });
   return r.ok;
 }

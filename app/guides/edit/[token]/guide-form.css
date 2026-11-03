@@ -30,3 +30,4 @@
 .gf-total input{display:inline-block;margin-left:8px;width:80px}
 .gf-right{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
 @media(max-width:640px){.gf-costs>div{grid-template-columns:1fr 1fr}.gf-save{margin-left:0}}
+.gf-linkbtn{background:none;border:1px solid var(--line-strong);border-radius:99px;color:var(--gold);cursor:pointer;font:inherit;margin:0 4px;padding:3px 12px}
