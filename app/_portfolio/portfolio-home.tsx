@@ -17,6 +17,7 @@ import {
   Menu,
   MapPin,
   MessageCircle,
+  MountainSnow,
   PackageCheck,
   ShoppingBag,
   Sparkles,
@@ -104,6 +105,12 @@ const services = [
     title: "Free Portfolio",
     body: "Register for a free personal portfolio website. Fill in one simple form and we build it for you.",
     href: "/services/free-portfolio"
+  },
+  {
+    icon: MountainSnow,
+    title: "Trekking Guide",
+    body: "Plan a trek in Nepal with a Mustang local. Send a short enquiry for a private, group or custom trek.",
+    href: "/services/trekking"
   }
 ];
 
@@ -186,8 +193,8 @@ const portfolio = [
   {
     title: "Trekking Guide, Mustang",
     type: "Tourism / Local Guiding",
-    body: "5-6 years of trekking guide experience in Mustang, Nepal, with local knowledge of Himalayan routes, traditional villages, and culture. Message me on WhatsApp to plan a trek.",
-    href: "https://wa.me/9779862568506?text=Hello%20Tsewang%2C%20I%27d%20like%20to%20ask%20about%20a%20trek%20in%20Mustang."
+    body: "5-6 years of trekking guide experience in Mustang, Nepal, with local knowledge of Himalayan routes, traditional villages, and culture. Send an enquiry to plan a trek.",
+    href: "/services/trekking"
   }
 ];
 
