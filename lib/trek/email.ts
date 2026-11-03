@@ -10,12 +10,10 @@ const row = (l: string, v: string) =>
 
 export function buildHtml(d: TrekInput, id: string): string {
   return `<div style="font-family:${FONT};max-width:720px;margin:auto;color:#111">
-<h2 style="margin:0 0 4px">New trekking enquiry</h2><div style="color:#666;font:12px ${FONT}">Reference ${esc(id)} · enquiry only, not a confirmed booking</div>
+<h2 style="margin:0 0 4px">New guide enquiry</h2><div style="color:#666;font:12px ${FONT}">Reference ${esc(id)} · professional enquiry, not a booking</div>
 <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin-top:14px">
-${row("Name", d.name)}${row("Email", d.email)}${row("Phone / WhatsApp", d.phone)}${row("Country", d.country)}
-${row("Trek", d.trek)}${row("Trip type", d.tripType)}${row("Preferred dates", d.dates)}${row("Duration", d.duration)}
-${row("Group size", d.groupSize)}${row("Trekking experience", d.experience)}${row("Accommodation", d.accommodation)}${row("Budget", d.budget)}
-${row("Special requirements", d.requirements)}${row("Message", d.message)}
+${row("Name", d.name)}${row("Email", d.email)}${row("Country", d.country)}${row("Phone / WhatsApp", d.phone)}
+${row("Enquiry type", d.enquiryType)}${row("Preferred region", d.region)}${row("Travel date", d.travelDate)}${row("Message", d.message)}
 </table></div>`;
 }
 
@@ -29,7 +27,7 @@ export async function sendEnquiry(d: TrekInput, id: string): Promise<{ ok: boole
         from: cfg.mailFrom().replace("Questionnaire Website", "Trekking Enquiry"),
         to: [cfg.recipient()],
         reply_to: d.email,
-        subject: `[Trekking] ${line(d.name)} | ${line(d.trek)}`,
+        subject: `[Guide enquiry] ${line(d.name)} | ${line(d.enquiryType)}`,
         html: buildHtml(d, id)
       })
     });

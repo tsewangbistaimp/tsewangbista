@@ -35,13 +35,14 @@ import LeadCta from "../components/LeadCta";
 import FreePortfolioPopup from "../components/FreePortfolioPopup";
 import ThemeToggle from "../components/ThemeToggle";
 
-const navItems = ["About", "Skills", "Work", "Services", "Orders", "Contact"];
+const navItems = ["About", "Skills", "Work", "Services", "Trekking Guide", "Orders", "Contact"];
 
 const navIcons = {
   About: Target,
   Skills: Sparkles,
   Work: Layers3,
   Services: Code2,
+  "Trekking Guide": MountainSnow,
   Orders: PackageCheck,
   Contact: MessageCircle
 };
@@ -109,8 +110,8 @@ const services = [
   {
     icon: MountainSnow,
     title: "Trekking Guide",
-    body: "Plan a trek in Nepal with a Mustang local. Send a short enquiry for a private, group or custom trek.",
-    href: "/services/trekking"
+    body: "Professional profile of a trekking guide from Mustang, Nepal: experience, destinations, skills and how to get in touch.",
+    href: "/trekking-guide"
   }
 ];
 
@@ -193,8 +194,8 @@ const portfolio = [
   {
     title: "Trekking Guide, Mustang",
     type: "Tourism / Local Guiding",
-    body: "5-6 years of trekking guide experience in Mustang, Nepal, with local knowledge of Himalayan routes, traditional villages, and culture. Send an enquiry to plan a trek.",
-    href: "/services/trekking"
+    body: "5-6 years of trekking guide experience in Mustang, Nepal, with local knowledge of Himalayan routes, traditional villages, and culture. See my guide profile and get in touch.",
+    href: "/trekking-guide"
   }
 ];
 
@@ -333,7 +334,7 @@ export default function Home() {
         </div>
         <nav id="main-navigation" className={isMenuOpen ? "is-open" : ""} aria-label="Main navigation">
           {navItems.map((item) => (
-            <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setIsMenuOpen(false)}>
+            <a key={item} href={item === "Trekking Guide" ? "/trekking-guide" : `#${item.toLowerCase()}`} onClick={() => setIsMenuOpen(false)}>
               {(() => {
                 const NavIcon = navIcons[item as keyof typeof navIcons];
                 return <NavIcon size={20} aria-hidden="true" />;
