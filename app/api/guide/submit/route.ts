@@ -3,7 +3,7 @@ import { json, limited, sameOrigin } from "@/lib/q/guard";
 import { esc } from "@/lib/q/email";
 import { button, sendMail, siteOrigin, wrap } from "@/lib/guide/email";
 import { findByToken, patch, saveDraft } from "@/lib/guide/store";
-import { EDITABLE, normalize, validateStep } from "@/lib/guide/types";
+import { EDITABLE, TOTAL_STEPS, normalize, validateStep } from "@/lib/guide/types";
 
 export const runtime = "nodejs";
 
@@ -19,11 +19,11 @@ export async function POST(req: Request) {
   if (!EDITABLE.includes(row.status)) return json({ error: "This portfolio has already been submitted." }, 409);
 
   const data = normalize(b.data);
-  for (let s = 0; s < 8; s++) {
+  for (let s = 0; s < TOTAL_STEPS; s++) {
     const m = validateStep(data, s);
     if (m) return json({ error: m, step: s }, 400);
   }
-  if (!(await saveDraft(row.id, data, 7)) || !(await patch(row.id, { status: "submitted", submitted_at: new Date().toISOString(), admin_note: null }))) {
+  if (!(await saveDraft(row.id, data, TOTAL_STEPS - 1)) || !(await patch(row.id, { status: "submitted", submitted_at: new Date().toISOString(), admin_note: null }))) {
     return json({ error: "Could not submit. Please try again." }, 502);
   }
   const origin = siteOrigin(req);

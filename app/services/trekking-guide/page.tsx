@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   description: "Create your professional trekking guide portfolio: experience, regions, services, detailed itineraries and transparent package prices."
 };
 
-const steps = ["Personal information", "Experience and qualifications", "Trekking regions", "Services and facilities", "Itinerary builder", "Pricing and costs", "Safety, availability, gallery", "Review and submit"];
-const prepare = ["Your guide licence and certificates", "Photographs of you and your treks", "Route details: days, altitudes, distances", "Approximate package prices and what they include", "Emergency and safety arrangements"];
+const steps = ["About you", "Experience and regions", "Services and safety", "Itineraries and prices", "Review and submit"];
+const prepare = ["Your guide licence and certificates (if you have them)", "A photo of you and photos of your treks", "Route details: days, altitudes and overnight stops", "Approximate package prices and what they include"];
 
 export default function TrekkingGuideServicePage() {
   return (
@@ -24,8 +24,8 @@ export default function TrekkingGuideServicePage() {
           Create your professional trekking guide portfolio and showcase your mountain guiding experience, trekking destinations, qualifications, services, detailed itineraries, and transparent trekking packages. Help international and local trekkers discover your expertise and connect with you.
         </p>
         <div className="tg-times" style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-          <span className="tg-badge"><Clock size={13} /> Estimated time: 25-35 minutes</span>
-          <span className="tg-badge"><Layers3 size={13} /> 8 main steps</span>
+          <span className="tg-badge"><Clock size={13} /> Estimated time: 10-15 minutes</span>
+          <span className="tg-badge"><Layers3 size={13} /> 5 steps</span>
           <span className="tg-badge"><Save size={13} /> Save your progress and continue later</span>
         </div>
       </section>
@@ -37,7 +37,7 @@ export default function TrekkingGuideServicePage() {
       </section>
 
       <section className="section-shell sprint-section" data-reveal>
-        <div className="section-heading"><p className="eyebrow">The 8 steps</p><h2>What you will fill in.</h2></div>
+        <div className="section-heading"><p className="eyebrow">The 5 steps</p><h2>What you will fill in.</h2></div>
         <div className="experience-list">{steps.map((x, i) => <div key={x}><FileText size={20} /><span>{i + 1}. {x}</span></div>)}</div>
         <p className="sprint-subhead">Your portfolio becomes public only after it has been reviewed and approved. Information you enter is shown as submitted by you unless it has been verified.</p>
       </section>

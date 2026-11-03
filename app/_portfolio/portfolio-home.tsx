@@ -109,7 +109,7 @@ const services = [
   {
     icon: MountainSnow,
     title: "Professional Trekking Guide Portfolio",
-    body: "Create your professional trekking guide portfolio and showcase your mountain guiding experience, trekking destinations, qualifications, services, detailed itineraries, and transparent trekking packages. About 25-35 minutes, 8 steps, save and continue later.",
+    body: "Create your professional trekking guide portfolio and showcase your mountain guiding experience, trekking destinations, qualifications, services, detailed itineraries, and transparent trekking packages. About 10-15 minutes, 5 steps, save and continue later.",
     href: "/services/trekking-guide"
   }
 ];

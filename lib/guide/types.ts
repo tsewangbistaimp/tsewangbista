@@ -130,24 +130,25 @@ export const slugify = (t: string) => t.toLowerCase().normalize("NFKD").replace(
 export const safeUrl = (u: string) => (/^https?:\/\/\S+$/i.test(u.trim()) ? u.trim() : "");
 export const pkgSlug = (it: Itinerary) => `${slugify(it.f.title || "package")}-${it.id}`;
 
-/** Steps 1..8: first problem found for a step, or "". Used by the form and again on the server at submit. */
+/** Steps 0..4: first problem found for a step, or "". Used by the form and again on the server at submit. */
+export const TOTAL_STEPS = 5;
 export function validateStep(d: GuideData, step: number): string {
   const p = d.p;
   if (step === 0) {
     if (p.legalName.trim().length < 2) return "Please enter your full legal name.";
     if (p.displayName.trim().length < 2) return "Please enter the name you want shown publicly.";
     if (p.headline.trim().length < 5) return "Please add a short professional headline.";
-    if (p.bio.trim().length < 50) return "Please write a professional biography (at least 50 characters).";
-    if (!p.nationality.trim()) return "Please enter your nationality.";
+    if (p.bio.trim().length < 50) return "Please write a short biography (at least 50 characters).";
     if (!p.location.trim()) return "Please enter your current location.";
     if (!/^\S+@\S+\.\S+$/.test(p.email.trim())) return "Please enter a valid email address.";
     if (!p.phone.trim() && !p.whatsapp.trim()) return "Please add a phone or WhatsApp number.";
     if (!d.languages.length) return "Please choose at least one language.";
-    if (!p.preferredContact) return "Please choose your preferred contact method.";
   }
-  if (step === 1 && !d.q.yearsExp.trim()) return "Please enter your total years of trekking experience.";
-  if (step === 2 && !d.regions.length) return "Please select at least one trekking region.";
-  if (step === 4) {
+  if (step === 1) {
+    if (!d.q.yearsExp.trim()) return "Please enter your total years of trekking experience.";
+    if (!d.regions.length) return "Please select at least one trekking region.";
+  }
+  if (step === 3) {
     if (!d.itineraries.length) return "Add at least one trekking itinerary.";
     for (let i = 0; i < d.itineraries.length; i++) {
       const it = d.itineraries[i];
@@ -155,18 +156,12 @@ export function validateStep(d: GuideData, step: number): string {
       if (it.f.title.trim().length < 3) return `${n}: please add a package title.`;
       if (!it.f.region) return `${n}: please choose a trekking region.`;
       if (!it.f.short.trim()) return `${n}: please add a short description.`;
-      if (!it.days.length) return `${n}: add at least one day to the itinerary.`;
-    }
-  }
-  if (step === 5) {
-    for (let i = 0; i < d.itineraries.length; i++) {
-      const it = d.itineraries[i];
+      if (!it.days.length) return `${n}: add at least one day.`;
       const f = it.pricing.f;
-      if (!f.perPerson.trim() && !f.perGroup.trim() && !f.private.trim() && !f.custom.trim()) return `Itinerary ${i + 1} (${it.f.title || "untitled"}): enter a price, or describe custom pricing.`;
+      if (!f.perPerson.trim() && !f.perGroup.trim() && !f.custom.trim()) return `${n}: enter a price per person or per group, or describe custom pricing.`;
     }
   }
-  if (step === 6 && !d.safety.emergencyName.trim() && !d.safety.emergencyPhone.trim()) return "Please add an emergency contact.";
-  if (step === 7 && !d.confirm) return "Please confirm that the information you submitted is accurate.";
+  if (step === 4 && !d.confirm) return "Please confirm that the information you submitted is accurate.";
   return "";
 }
 
