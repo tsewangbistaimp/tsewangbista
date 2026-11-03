@@ -17,6 +17,7 @@ import {
   Menu,
   MapPin,
   MessageCircle,
+  MountainSnow,
   PackageCheck,
   ShoppingBag,
   Sparkles,
@@ -104,6 +105,12 @@ const services = [
     title: "Free Portfolio",
     body: "Register for a free personal portfolio website. Fill in one simple form and we build it for you.",
     href: "/services/free-portfolio"
+  },
+  {
+    icon: MountainSnow,
+    title: "Professional Trekking Guide Portfolio",
+    body: "Create your professional trekking guide portfolio and showcase your mountain guiding experience, trekking destinations, qualifications, services, detailed itineraries, and transparent trekking packages. About 25-35 minutes, 8 steps, save and continue later.",
+    href: "/services/trekking-guide"
   }
 ];
 
