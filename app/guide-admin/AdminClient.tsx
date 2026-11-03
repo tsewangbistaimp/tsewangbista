@@ -58,6 +58,7 @@ export default function AdminClient({ authed, origin, guides = [], inquiries = [
             <button style={btn} onClick={() => act(g.id, "changes")}>Request changes</button>
             <button style={btn} onClick={() => confirm("Suspend this profile?") && act(g.id, "suspend")}>Suspend</button>
             <button style={btn} onClick={() => act(g.id, "verify", { verified: !g.verified })}>{g.verified ? "Remove verified badge" : "Mark verified"}</button>
+            <a style={{ ...btn, textDecoration: "none" }} href={`/guide-admin/print/${g.id}`} target="_blank" rel="noreferrer">Download PDF</a>
             <button style={btn} onClick={() => setOpen(open === g.id ? "" : g.id)}>{open === g.id ? "Hide" : "View"} full submission</button>
           </div>
           {open === g.id ? (
